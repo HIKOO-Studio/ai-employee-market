@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "industries": [
     { "code": "software", "name": "软件研发" },
     { "code": "content-media", "name": "内容与新媒体" },
@@ -12,6 +12,16 @@
     { "code": "developer", "name": "开发工程师", "industry": "software" },
     { "code": "video-editor", "name": "视频剪辑", "industry": "content-media" },
     { "code": "novelist", "name": "网文写作", "industry": "content-media" },
-    { "code": "executive-secretary", "name": "通用秘书", "industry": "general" }
+    { "code": "executive-secretary", "name": "通用秘书", "industry": "general" },
+    { "code": "product-manager", "name": "产品经理", "industry": "software" },
+    { "code": "qa-engineer", "name": "测试工程师", "industry": "software" },
+    { "code": "ui-designer", "name": "UI 设计师", "industry": "software" },
+    { "code": "devops-engineer", "name": "DevOps 工程师", "industry": "software" },
+    { "code": "data-analyst", "name": "数据分析师", "industry": "software" },
+    { "code": "ecommerce-operator", "name": "电商运营", "industry": "ecommerce" },
+    { "code": "growth-marketer", "name": "增长营销", "industry": "ecommerce" },
+    { "code": "customer-service", "name": "电商客服", "industry": "ecommerce" },
+    { "code": "research-analyst", "name": "研究分析师", "industry": "general" },
+    { "code": "general-assistant", "name": "通用助理", "industry": "general" }
   ]
 }

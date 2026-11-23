@@ -21,12 +21,16 @@ function fixture(t) {
       typeof data === "string" ? data : JSON.stringify(data, null, 2) + "\n",
     );
   };
-  function pkg(id, version, deps = []) {
+  function pkg(id, version, deps = [], overrides = {}) {
     write(id + "/manifest.json", {
       id,
       version,
+      license: "MIT",
+      permissions: { shell: false, network: false, filesystem: "none" },
+      entrypoints: { readme: "readme.md" },
       compat: { desktop_min: "1.0.0" },
       dependencies: { skills: deps },
+      ...overrides,
     });
     write(id + "/readme.md", id + "\n");
   }
@@ -78,6 +82,144 @@ function fixture(t) {
   };
 }
 
+const taxonomyFile = new URL("../taxonomy.json", import.meta.url);
+function admissionFixture(t) {
+  const { root, write } = fixture(t);
+  write("taxonomy.json", fs.readFileSync(taxonomyFile, "utf8"));
+  const gearTypes = { skills: "skill", mcps: "mcp", "tool-adapters": "tool_adapter", "model-configs": "model_config" };
+  function item(id, overrides = {}, readme = "readme.md") {
+    write(id + "/manifest.json", {
+      schema_version: "1.0", id, type: gearTypes[id.split("/")[0]], market_group: "gear",
+      version: "1.0.0", name: "Test package", summary: "Market admission", owner_github: "test-author",
+      license: "MIT", industries: ["software"], positions: [], tags: ["自由标签"],
+      entrypoints: { readme: "readme.md" }, ...overrides,
+    });
+    if (readme) write(id + "/" + readme, "Test package");
+  }
+  function validate() {
+    const script = fileURLToPath(new URL("./validate.mjs", import.meta.url));
+    const result = spawnSync(process.execPath, [script, "--all", "--root", root], { encoding: "utf8" });
+    assert.ifError(result.error);
+    return result;
+  }
+  return { item, validate };
+}
+
+test("taxonomy keeps established industries and maps core positions; a submission may use only industry and free tags", t => {
+  const taxonomy = JSON.parse(fs.readFileSync(taxonomyFile));
+  const industries = new Set(taxonomy.industries.map(entry => entry.code));
+  const positions = new Map(taxonomy.positions.map(entry => [entry.code, entry.industry]));
+  const expected = {
+    software: ["developer", "product-manager", "qa-engineer", "ui-designer", "devops-engineer", "data-analyst"],
+    "content-media": ["xhs-operator"],
+    ecommerce: ["ecommerce-operator", "growth-marketer", "customer-service"],
+    general: ["executive-secretary", "research-analyst", "general-assistant"],
+  };
+  for (const [industry, roles] of Object.entries(expected)) {
+    assert.ok(industries.has(industry), industry);
+    for (const role of roles) assert.equal(positions.get(role), industry, role);
+  }
+  const { item, validate } = admissionFixture(t);
+  item("model-configs/free-tags", { industries: ["ecommerce"], positions: [], tags: ["独立站选品"] });
+  const accepted = validate();
+  assert.equal(accepted.status, 0, accepted.stderr);
+  item("model-configs/unknown-role", { positions: ["new-specialty"] });
+  const rejected = validate();
+  assert.equal(rejected.status, 1);
+  assert.match(rejected.stderr, /unknown-role: positions/);
+});
+
+test("a single allowlisted SPDX license identifier is mandatory", t => {
+  const { item, validate } = admissionFixture(t);
+  for (const license of ["MIT", "Apache-2.0", "BSD-2-Clause", "BSD-3-Clause", "ISC", "MPL-2.0",
+    "GPL-3.0-only", "GPL-3.0-or-later", "AGPL-3.0-only", "CC-BY-4.0", "CC0-1.0"]) {
+    item("model-configs/license-" + license.toLowerCase().replaceAll(".", "-"), { license });
+  }
+  const accepted = validate();
+  assert.equal(accepted.status, 0, accepted.stderr);
+  const cases = [undefined, "", "Proprietary", "mit", "MIT OR ISC", ["MIT"]];
+  cases.forEach((license, i) => item("model-configs/unlicensed-" + i, { license }));
+  const rejected = validate();
+  assert.equal(rejected.status, 1);
+  cases.forEach((_, i) => assert.ok(rejected.stderr.includes("unlicensed-" + i + ": license"), rejected.stderr));
+});
+
+test("executable categories require explicit shell, network and filesystem permissions; env contains names only", t => {
+  const { item, validate } = admissionFixture(t);
+  const minimal = { shell: false, network: false, filesystem: "none" };
+  item("skills/no-access", { permissions: minimal });
+  item("mcps/workspace-access", { permissions: {
+    shell: false, network: true, filesystem: "workspace", env: ["API_TOKEN", "_region2"], notes: "项目服务认证",
+  } });
+  item("tool-adapters/full-access", { permissions: { shell: true, network: false, filesystem: "full", env: [] } });
+  item("model-configs/no-declaration");
+  const accepted = validate();
+  assert.equal(accepted.status, 0, accepted.stderr);
+
+  const categories = ["skills", "mcps", "tool-adapters"];
+  categories.forEach(cat => item(cat + "/missing-permissions"));
+  const cases = [
+    [null, "permissions"], [[], "permissions"],
+    [{ ...minimal, shell: undefined }, "permissions.shell"], [{ ...minimal, shell: 0 }, "permissions.shell"],
+    [{ ...minimal, network: undefined }, "permissions.network"], [{ ...minimal, network: "false" }, "permissions.network"],
+    [{ ...minimal, filesystem: undefined }, "permissions.filesystem"], [{ ...minimal, filesystem: "home" }, "permissions.filesystem"],
+    [{ ...minimal, env: "TOKEN" }, "permissions.env"], [{ ...minimal, env: ["TOKEN=value"] }, "permissions.env"],
+    [{ ...minimal, env: ["1BAD"] }, "permissions.env"], [{ ...minimal, env: [1] }, "permissions.env"],
+    [{ ...minimal, notes: false }, "permissions.notes"],
+  ];
+  cases.forEach(([permissions], i) => item("skills/bad-permission-" + i, { permissions }));
+  const rejected = validate();
+  assert.equal(rejected.status, 1);
+  categories.forEach(cat => assert.ok(rejected.stderr.includes(cat + "/missing-permissions: permissions"), rejected.stderr));
+  cases.forEach(([, field], i) => assert.ok(rejected.stderr.includes("bad-permission-" + i + ": " + field), rejected.stderr));
+});
+
+test("README entrypoint must match one of the two supported filenames exactly", t => {
+  const { item, validate } = admissionFixture(t);
+  item("model-configs/lowercase");
+  item("model-configs/uppercase", { entrypoints: { readme: "README.md" } }, "README.md");
+  const accepted = validate();
+  assert.equal(accepted.status, 0, accepted.stderr);
+  const cases = [
+    ["README.md", "readme.md"], ["readme.md", "README.md"], ["Readme.md", "Readme.md"],
+    ["readme.md", null], ["guide.md", "guide.md"], [undefined, "README.md"],
+  ];
+  cases.forEach(([readme, actual], i) => item("model-configs/bad-readme-" + i, { entrypoints: { readme } }, actual));
+  const rejected = validate();
+  assert.equal(rejected.status, 1);
+  cases.forEach((_, i) => assert.ok(rejected.stderr.includes("bad-readme-" + i + ": entrypoints.readme"), rejected.stderr));
+});
+
+test("external source requires an HTTPS GitHub repository, confined optional path and complete lowercase SHA", t => {
+  const { item, validate } = admissionFixture(t);
+  const source = { repo_url: "https://github.com/Example-Org/Tool_Kit.v2", commit_sha: "12ab".repeat(10) };
+  item("model-configs/repo-root", { external_source: source });
+  item("model-configs/explicit-root", { external_source: { ...source, repo_path: "" } });
+  item("model-configs/subdirectory", { external_source: { ...source, repo_path: "packages/工具", commit_sha: "ab".repeat(32) } });
+  const accepted = validate();
+  assert.equal(accepted.status, 0, accepted.stderr);
+
+  const cases = [[null, "external_source"], [[], "external_source"]];
+  const badFields = {
+    repo_url: [undefined, "http://github.com/org/repo", "https://other.test/org/repo",
+      "https://github.com.other.test/org/repo", "https://github.com@other.test/org/repo",
+      "https://person@github.com/org/repo", "https://github.com:444/org/repo", "https://github.com/org",
+      "https://github.com/org/..", "https://github.com/a/../org/repo", "https://github.com/org/repo/tree/main",
+      "https://github.com/org/repo?ref=main", "https://github.com/org/repo#main"],
+    repo_path: [null, 2, "/outside", "../outside", "dir/../../outside", "C:/outside", "dir\\outside",
+      "dir/%2e%2e/outside", "dir/%252e%252e", "a//b", "dir\u0000x"],
+    commit_sha: [undefined, "main", "a".repeat(39), "a".repeat(41), "a".repeat(63), "a".repeat(65),
+      "A".repeat(40), "g".repeat(64), "f".repeat(40) + "\n"],
+  };
+  for (const [field, values] of Object.entries(badFields)) {
+    for (const value of values) cases.push([{ ...source, [field]: value }, "external_source." + field]);
+  }
+  cases.forEach(([external_source], i) => item("model-configs/bad-source-" + i, { external_source }));
+  const rejected = validate();
+  assert.equal(rejected.status, 1);
+  cases.forEach(([, field], i) => assert.ok(rejected.stderr.includes("bad-source-" + i + ": " + field), rejected.stderr));
+});
+
 test("semver, numeric precedence and prerelease", () => {
   for (const v of [
     "1.0",
@@ -96,6 +238,102 @@ test("semver, numeric precedence and prerelease", () => {
     compareVersions("900719925474099300.0.0", "900719925474099299.0.0") > 0,
   );
   assert.ok(compareVersions("1.0.0", "1.0.0-rc.1") > 0);
+});
+
+test("external listings preserve both the market record and its pinned upstream source", (t) => {
+  const { root, pkg, build, read } = fixture(t);
+  const id = "skills/external-tool";
+  const repo = "https://github.com/example/upstream";
+  const firstPin = "a".repeat(40), nextPin = "b".repeat(64);
+  function list(version, source) {
+    pkg(id, version, [], { external_source: source });
+  }
+  list("1.0.0", { repo_url: repo, repo_path: "tools/widget", commit_sha: firstPin });
+  build();
+  const initial = read();
+  for (const row of [initial.items[0], initial.releases[0]]) {
+    assert.equal(row.source, "external");
+    assert.equal(row.repo_url, repo);
+    assert.equal(row.repo_path, "tools/widget");
+    assert.equal(row.external_commit_sha, firstPin);
+    assert.equal(row.path, id);
+    assert.match(row.commit_sha, /^local-/);
+  }
+  build();
+  assert.deepEqual(read(), initial);
+  list("1.0.0", { repo_url: repo, commit_sha: nextPin });
+  assert.throws(() => build(), /不可覆盖/);
+  list("1.0.1", { repo_url: repo, commit_sha: "main" });
+  assert.throws(() => build(), /external_source/);
+  list("1.0.1", { repo_url: repo, commit_sha: nextPin });
+  build();
+  const updated = read();
+  assert.equal(updated.items[0].repo_path, "");
+  assert.equal(updated.items[0].external_commit_sha, nextPin);
+  assert.notEqual(updated.items[0].content_sha256, initial.items[0].content_sha256);
+  assert.deepEqual(updated.releases[0], initial.releases[0]);
+  fs.rmSync(path.join(root, id), { recursive: true });
+  build();
+  assert.deepEqual(read().items, []);
+  assert.deepEqual(read().releases, updated.releases);
+});
+
+test("top-level source fields cannot override the reviewed package origin", (t) => {
+  const { pkg, build, read } = fixture(t);
+  const id = "skills/local-tool";
+  pkg(id, "1.0.0", [], {
+    source: "external",
+    repo_url: "https://github.com/example/elsewhere",
+    repo_path: "overridden",
+    external_commit_sha: "a".repeat(40),
+  });
+  build();
+  const catalog = read();
+  assert.equal(catalog.items[0].source, "official");
+  for (const row of [catalog.items[0], catalog.releases[0]]) {
+    for (const field of ["repo_url", "repo_path", "external_commit_sha"])
+      assert.equal(Object.hasOwn(row, field), false);
+  }
+});
+
+test("Git builds and replay enforce admission at the candidate commit before sealing a version", t => {
+  const { init, pkg, build, read, commit } = fixture(t);
+  init();
+  const id = "skills/tool";
+  pkg(id, "1.0.0");
+  commit("valid package");
+  build("--git");
+  const base = commit("published catalog");
+
+  pkg(id, "2.0.0", [], { license: undefined, permissions: undefined, entrypoints: { readme: "README.md" } });
+  const rejected = commit("incomplete release");
+  pkg(id, "2.0.0"); // The corrected worktree must not influence a Git build.
+  assert.throws(() => build("--check", "--git", "--base-ref", base), error =>
+    ["license", "permissions", "entrypoints.readme"].every(field => error.message.includes(field)));
+
+  const accepted = commit("complete the same unpublished version");
+  build("--git", "--base-ref", rejected);
+  assert.deepEqual(read().releases.map(r => r.version), ["1.0.0", "2.0.0"]);
+  assert.equal(read().releases[1].commit_sha, accepted);
+});
+
+test("protected pre-ledger releases migrate without applying new admission rules retroactively", t => {
+  const { init, pkg, write, build, read, commit } = fixture(t);
+  init();
+  const id = "skills/tool";
+  pkg(id, "1.0.0", [], { permissions: undefined });
+  const original = commit("legacy package");
+  write("manifest.json", { schema_version: "1.0", head_sha: original, items: [{ id, version: "1.0.0" }] });
+  commit("protected pre-ledger publication");
+  build("--git");
+  const migrated = read();
+  assert.equal(migrated.releases[0].commit_sha, original);
+  commit("publish migrated ledger");
+  build("--git");
+  assert.deepEqual(read(), migrated);
+  pkg(id, "1.0.1", [], { permissions: undefined });
+  commit("new invalid package version");
+  assert.throws(() => build("--git"), /permissions/);
 });
 
 test("content, rename, executable bit and untracked local edits", (t) => {

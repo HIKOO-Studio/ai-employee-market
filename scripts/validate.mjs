@@ -7,6 +7,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { isDeepStrictEqual } from "node:util";
+import { git, gitJson } from "./catalog-source.mjs";
+import { packageAdmissionErrors } from "./admission.mjs";
 import { validVersion } from "./catalog.mjs";
 
 const opts = parseArgs(process.argv.slice(2));
@@ -118,6 +121,7 @@ function parseArgs(argv) {
     if (a === "--all") opts.all = true;
     else if (a === "--root") opts.root = argv[++i];
     else if (a === "--owners-file") opts.ownersFile = argv[++i];
+    else if (a === "--base-ref") opts.baseRef = argv[++i];
     else if (a === "--pr-files") opts.prFiles = argv[++i];
     else if (a === "--pr-author") opts.prAuthor = (argv[++i] || "").trim().toLowerCase();
     else if (a === "--approvers") opts.approvers = (argv[++i] || "").split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
@@ -165,9 +169,7 @@ function validateItem(item, taxonomy, allIds, released) {
   }
 
   const manifestPath = path.join(absDir, "manifest.json");
-  const readmePath = path.join(absDir, "readme.md");
   if (!fs.existsSync(manifestPath)) fail(`${id}: 缺少必填文件 manifest.json`);
-  if (!fs.existsSync(readmePath)) fail(`${id}: 缺少必填文件 readme.md`);
 
   const manifest = fs.existsSync(manifestPath) ? readJson(manifestPath, `${id}/manifest.json`) : null;
   if (manifest) {
@@ -179,6 +181,12 @@ function validateItem(item, taxonomy, allIds, released) {
     if (!manifest.summary || typeof manifest.summary !== "string") fail(`${id}: 缺少有效 summary`);
     if (!manifest.owner_github || typeof manifest.owner_github !== "string") fail(`${id}: 缺少有效 owner_github`);
     if (!validVersion(manifest.version)) fail(`${id}: version (${manifest.version}) 必须符合 SemVer，市场版本不含构建元数据`);
+    const entries = fs.readdirSync(absDir);
+    const hasFile = name => entries.includes(name) &&
+      fs.statSync(path.join(absDir, name), { throwIfNoEntry: false })?.isFile();
+    for (const error of packageAdmissionErrors(id, manifest, hasFile)) {
+      fail(`${id}: ${error}`);
+    }
 
     if (expected.type === "identity") {
       if (!["ai_managed", "user_custom", "both"].includes(manifest.identity_mode)) {
@@ -186,11 +194,15 @@ function validateItem(item, taxonomy, allIds, released) {
       }
     }
 
-    for (const ind of manifest.industries || []) {
-      if (!taxonomy.industries.has(ind)) fail(`${id}: industries 包含未在 taxonomy.json 登记的值 "${ind}"`);
-    }
-    for (const pos of manifest.positions || []) {
-      if (!taxonomy.positions.has(pos)) fail(`${id}: positions 包含未在 taxonomy.json 登记的值 "${pos}"`);
+    for (const field of ["industries", "positions"]) {
+      if (!Object.hasOwn(manifest, field)) continue;
+      if (!Array.isArray(manifest[field])) {
+        fail(`${id}: ${field} 必须是数组`);
+        continue;
+      }
+      for (const value of manifest[field]) {
+        if (!taxonomy[field].has(value)) fail(`${id}: ${field} 包含未在 taxonomy.json 登记的值 "${value}"`);
+      }
     }
 
     if (expected.type === "scenario" && !fs.existsSync(path.join(absDir, "scenario.json"))) {
@@ -261,60 +273,108 @@ function checkCycles(items) {
   for (const id of items.keys()) dfs(id, []);
 }
 
+function reviewedOwner(itemId, owners, baseRef) {
+  // The generated map can lag accepted merges and omit delisted IDs.
+  if (baseRef) {
+    const file = itemId + "/manifest.json";
+    const last = git(ROOT, [
+      "log", "-1", "--first-parent", "--no-renames", "--diff-filter=AM",
+      "--format=%H", baseRef, "--", file,
+    ]).trim();
+    if (last) return gitJson(ROOT, last, file).owner_github.toLowerCase();
+  }
+  return (owners[itemId] || "").toLowerCase();
+}
+
+function checkRollbackChanges(baseRef, touchedItemIds) {
+  const before = gitJson(ROOT, baseRef, "rollbacks.json") || {};
+  const file = path.join(ROOT, "rollbacks.json");
+  const after = fs.existsSync(file) ? readJson(file, "rollbacks.json") || {} : {};
+  for (const id of new Set([...Object.keys(before), ...Object.keys(after)])) {
+    if (!isDeepStrictEqual(before[id], after[id]) && !touchedItemIds.has(id)) {
+      fail(`${id}: 回退声明只能随对应资源目录的改动一起提交`);
+    }
+  }
+}
+
 function checkPrGovernance(opts, items) {
   if (!opts.prFiles) return;
   const fileList = fs.readFileSync(opts.prFiles, "utf8");
   const changed = fileList.split(fileList.includes("\0") ? "\0" : /\r?\n/).filter(Boolean);
 
+  const touchedItemIds = new Set();
+  const sharedFiles = [];
+  const isRollback = changed.includes("rollbacks.json");
   for (const f of changed) {
     if (GENERATED_ROOT_FILES.has(f)) {
       fail(`禁止在 PR 中手工修改自动生成文件: ${f}`);
     }
+    const [category, slug, ...packagePath] = f.split("/");
+    if (Object.hasOwn(CATEGORY_MAP, category)) {
+      if (!slug || !SLUG_RE.test(slug) || !packagePath.length) {
+        fail(`投稿文件必须位于有效的 <category>/<slug>/ 资源目录中: ${f}`);
+      } else {
+        touchedItemIds.add(`${category}/${slug}`);
+      }
+    } else if (f !== "rollbacks.json") {
+      sharedFiles.push(f);
+    }
   }
 
+  if ((touchedItemIds.size || isRollback) && sharedFiles.length) {
+    fail(`投稿内容和共享文件应分别提交 PR: ${sharedFiles.join(", ")}`);
+  }
   if (!opts.admins.length) {
     fail("MARKET_ADMINS 尚未配置：投稿审批不能完成");
     return;
   }
-  const protectedChange = f => f.startsWith(".github/") || f.startsWith("scripts/");
-  const isSubmission = f => Object.hasOwn(CATEGORY_MAP, f.split("/")[0]) || f === "rollbacks.json";
-  if (changed.some(protectedChange) && changed.some(isSubmission)) {
-    fail("投稿内容和市场校验/发布规则应分别提交 PR");
-  }
+  if (!opts.prAuthor) fail("缺少当前 PR 提交者");
   const ownersPath = opts.ownersFile || path.join(ROOT, "owners.json");
   const owners = fs.existsSync(ownersPath) ? readJson(ownersPath, "owners.json") || {} : {};
   const adminSet = new Set(opts.admins);
+  const authorIsAdmin = adminSet.has(opts.prAuthor);
   const approverSet = new Set(opts.approvers);
   const reviewAdmins = [...approverSet].filter(a => a !== opts.prAuthor && adminSet.has(a));
   if (!reviewAdmins.length) fail("需平台管理员审阅并批准当前 PR 提交");
-
-  const touchedItemIds = new Set();
-  for (const f of changed) {
-    const parts = f.split("/");
-    if (parts.length >= 2 && CATEGORY_MAP[parts[0]]) {
-      touchedItemIds.add(`${parts[0]}/${parts[1]}`);
+  if (!authorIsAdmin && touchedItemIds.size > 1) {
+    fail("普通投稿 PR 只能修改一个资源目录");
+  }
+  if (isRollback) {
+    if (!authorIsAdmin || !touchedItemIds.size) {
+      fail("rollbacks.json 必须由管理员随对应资源的回退或修复一起提交");
+    } else if (!opts.baseRef) {
+      fail("校验 rollbacks.json 变更需要受保护的 --base-ref");
+    } else {
+      checkRollbackChanges(opts.baseRef, touchedItemIds);
     }
   }
 
   for (const itemId of touchedItemIds) {
-    const existingOwner = (owners[itemId] || "").toLowerCase();
+    const existingOwner = reviewedOwner(itemId, owners, opts.baseRef);
     const item = items.get(itemId);
+    const proposedOwner = typeof item?.manifest?.owner_github === "string" ? item.manifest.owner_github.toLowerCase() : "";
     if (existingOwner) {
       // 修改或删除已有资源：必须 Owner（作者本人提交或已 Approve）+ Admin 双审
-      const platformOwned = existingOwner === "official";
-      const ownerApproved = platformOwned ? reviewAdmins.length > 0 : opts.prAuthor === existingOwner || approverSet.has(existingOwner);
-      if (!ownerApproved) {
-        fail(`${itemId}: 修改已有资源必须获得原创建者 @${existingOwner} 的 Approve`);
+      if (existingOwner === "official") {
+        // An admin author can represent the team. Other authors need two distinct admin reviews.
+        if (!authorIsAdmin && reviewAdmins.length < 2) {
+          fail(`${itemId}: 修改 official 资源需两名不同的 Admin 分别代表团队 Owner 和独立审批人批准`);
+        }
+      } else {
+        if (opts.prAuthor !== existingOwner && !approverSet.has(existingOwner)) {
+          fail(`${itemId}: 修改已有资源必须获得原创建者 @${existingOwner} 的 Approve`);
+        }
+        if (!reviewAdmins.some(a => a !== existingOwner)) {
+          fail(`${itemId}: 修改已有资源必须获得平台 Admin 的 Approve（Owner + Admin 双审）`);
+        }
       }
-      if (!reviewAdmins.some(a => a !== existingOwner)) {
-        fail(`${itemId}: 修改已有资源必须获得平台 Admin 的 Approve（Owner + Admin 双审）`);
-      }
-      if (item?.manifest && item.manifest.owner_github.toLowerCase() !== existingOwner && !adminSet.has(opts.prAuthor)) {
+      if (item?.manifest && proposedOwner !== existingOwner && !authorIsAdmin) {
         fail(`${itemId}: 禁止擅自变更 owner_github（原 owner 为 @${existingOwner}）`);
       }
-    } else if (item?.manifest) {
-      // 新增资源：非管理员提交时 owner_github 必须与 PR 作者一致
-      if (opts.prAuthor && !adminSet.has(opts.prAuthor) && item.manifest.owner_github.toLowerCase() !== opts.prAuthor) {
+    } else if (item?.manifest && !authorIsAdmin) {
+      if (proposedOwner === "official") {
+        fail(`${itemId}: 只有管理员可登记 official 团队资源`);
+      } else if (proposedOwner !== opts.prAuthor) {
         fail(`${itemId}: 新增资源的 manifest.owner_github (${item.manifest.owner_github}) 必须与 PR 提交者 @${opts.prAuthor} 一致`);
       }
     }

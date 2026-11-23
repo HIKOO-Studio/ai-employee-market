@@ -1,6 +1,8 @@
 import { createHash } from "node:crypto";
+import { packageAdmissionErrors } from "./admission.mjs";
 
 const numeric = /^(0|[1-9][0-9]*)$/;
+
 export function validVersion(value) {
   if (typeof value !== "string") return false;
   const match =
@@ -86,7 +88,19 @@ function dependencyLock(item, resolve) {
   return [...resolved.values()].sort(orderId);
 }
 
-export function makeCatalog(snapshot, previous) {
+function externalCoordinates(manifest) {
+  if (!Object.hasOwn(manifest, "external_source")) return {};
+  const source = manifest.external_source;
+  return {
+    source: "external",
+    repo_url: source.repo_url,
+    repo_path: source.repo_path ?? "",
+    external_commit_sha: source.commit_sha,
+  };
+}
+
+export function makeCatalog(snapshot, previous, legacyItems = []) {
+  const legacyReleases = new Set(legacyItems.map(identity));
   const history = new Map(
     (previous?.releases || []).map((r) => [identity(r), r]),
   );
@@ -118,6 +132,10 @@ export function makeCatalog(snapshot, previous) {
     resolving.add(id);
     const key = identity(m),
       sealed = history.get(key);
+    if (!sealed && !legacyReleases.has(key)) {
+      const errors = packageAdmissionErrors(id, m, pkg.hasFile);
+      if (errors.length) throw Error(key + ": " + errors.join(", "));
+    }
     const lock = sealed?.dependency_lock || dependencyLock(m, resolve);
     const digest = contentHash(pkg.filesHash, lock);
     if (sealed && sealed.content_sha256 !== digest) {
@@ -168,6 +186,7 @@ export function makeCatalog(snapshot, previous) {
       content_sha256: digest,
       dependency_lock: lock,
       compat: m.compat || {},
+      ...(legacyReleases.has(key) ? {} : externalCoordinates(m)),
     };
     resolved.set(id, row);
     resolving.delete(id);
@@ -180,7 +199,11 @@ export function makeCatalog(snapshot, previous) {
     const pkg = snapshot.packages.get(id);
     const m = pkg.manifest,
       r = resolve(id);
-    const { schema_version, ...meta } = m;
+    // Only the reviewed external_source can supply upstream coordinates.
+    const {
+      schema_version, source, repo_url, repo_path, external_commit_sha,
+      external_source, ...meta
+    } = m;
     items.push({
       ...meta,
       id,
@@ -196,7 +219,12 @@ export function makeCatalog(snapshot, previous) {
       dependencies: m.dependencies || {},
       entrypoints: m.entrypoints || {},
       has_skill: !!m.dependencies?.skills?.length || pkg.hasSkill,
-      source: "official",
+      source: r.source || "official",
+      ...(r.source === "external" && {
+        repo_url: r.repo_url,
+        repo_path: r.repo_path,
+        external_commit_sha: r.external_commit_sha,
+      }),
       content_sha256: r.content_sha256,
       dependency_lock: r.dependency_lock,
     });

@@ -102,7 +102,7 @@ jobs:
           MARKET_ADMINS: ${{ vars.MARKET_ADMINS }}
           MARKET_REPO: ${{ github.repository }}
         run: |
-          node rules/scripts/validate.mjs --root candidate --owners-file rules/owners.json \
+          node rules/scripts/validate.mjs --root candidate --base-ref "$BASE" --owners-file rules/owners.json \
             --pr-files "$RUNNER_TEMP/market-changed" --pr-author "$AUTHOR" --approvers "$APPROVERS" --admins "$MARKET_ADMINS"
           node rules/scripts/build-manifest.mjs --repo candidate --check --base-ref "$BASE"
 

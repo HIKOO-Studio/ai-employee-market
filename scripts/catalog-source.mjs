@@ -123,6 +123,20 @@ function localJSON(root, file) {
   return fs.existsSync(full) ? JSON.parse(fs.readFileSync(full, "utf8")) : null;
 }
 
+// Resolve README links within the package snapshot without touching the host filesystem.
+function snapshotHasFile(files, name) {
+  for (let hops = 0; hops <= 40; hops++) {
+    const entry = files.find(f => f.path === name ||
+      (f.mode === "120000" && name.startsWith(f.path + "/")));
+    if (!entry) return false;
+    if (entry.mode !== "120000") return true;
+    const target = entry.bytes.toString();
+    if (path.posix.isAbsolute(target)) return false;
+    name = path.posix.join(path.posix.dirname(entry.path), target, name.slice(entry.path.length));
+  }
+  return false;
+}
+
 export function readSnapshot(root, ref, prior) {
   const groups = ref ? listGitPackages(root, ref) : listLocalPackages(root);
   const packages = new Map();
@@ -138,6 +152,7 @@ export function readSnapshot(root, ref, prior) {
     packages.set(id, {
       manifest,
       filesHash,
+      hasFile: name => snapshotHasFile(files, name),
       hasSkill: files.some((f) => f.path.startsWith("skill/")),
       commit() {
         if (ref)

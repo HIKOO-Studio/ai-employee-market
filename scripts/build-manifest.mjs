@@ -30,8 +30,18 @@ const paths = [...categories, "taxonomy.json", "rollbacks.json"];
 const revision = (ref) =>
   git(root, ["rev-parse", "--verify", ref + "^{commit}"]).trim();
 
-function advance(ref, prior) {
-  return makeCatalog(readSnapshot(root, ref, prior), prior);
+function advance(ref, prior, legacyItems) {
+  return makeCatalog(readSnapshot(root, ref, prior), prior, legacyItems);
+}
+
+function replay(ref, prior) {
+  try {
+    return advance(ref, prior);
+  } catch (error) {
+    if (error.code || error.status !== undefined) throw error;
+    console.warn("已跳过未通过发布校验的历史提交 " + ref.slice(0, 12) + ": " + error.message);
+    return prior;
+  }
 }
 
 function protectedBaseline(ref) {
@@ -63,7 +73,7 @@ function protectedBaseline(ref) {
         ? revision(legacy.head_sha)
         : commit;
       git(root, ["merge-base", "--is-ancestor", anchor, ref]);
-      previous = advance(anchor, previous);
+      previous = advance(anchor, previous, legacy.items);
     }
     if (!anchor) {
       [anchor] = git(root, [
@@ -78,7 +88,7 @@ function protectedBaseline(ref) {
         .trim()
         .split(/\s+/);
       if (!anchor) return null;
-      previous = advance(anchor, null);
+      previous = replay(anchor, null);
     }
   }
   // Catch accepted changes even when two merges land before the publishing job.
@@ -103,17 +113,7 @@ function protectedBaseline(ref) {
       ...paths,
     ]);
     if (!changes) continue;
-    try {
-      previous = advance(commit, previous);
-    } catch (error) {
-      if (error.code || error.status !== undefined) throw error;
-      console.warn(
-        "已跳过未通过发布校验的历史提交 " +
-          commit.slice(0, 12) +
-          ": " +
-          error.message,
-      );
-    }
+    previous = replay(commit, previous);
   }
   return previous;
 }
@@ -144,6 +144,7 @@ function build() {
     catalog = makeCatalog(
       readSnapshot(root, null, local),
       local?.releases ? local : null,
+      local?.releases ? [] : local?.items,
     );
   }
   if (!args.includes("--check")) {

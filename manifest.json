@@ -1,0 +1,400 @@
+{
+  "schema_version": "1.1",
+  "repo": "HIKOO-Studio/ai-employee-market",
+  "mirror_base_url": "",
+  "taxonomy_sha": "1a35558915c6f939",
+  "item_count": 6,
+  "items": [
+    {
+      "id": "identities/opencode-plus-base",
+      "type": "identity",
+      "market_group": "people",
+      "name": "OpenCode · Plus 纯身份基准",
+      "version": "1.0.0",
+      "owner_github": "official",
+      "summary": "无 Skill 绑定的官方纯身份基准：OpenCode + 国产 Plus 档位（DeepSeek → Kimi → GLM），用于官方底层横评。",
+      "identity_mode": "both",
+      "industries": [
+        "general",
+        "content-media",
+        "software"
+      ],
+      "positions": [
+        "xhs-operator",
+        "developer"
+      ],
+      "tags": [
+        "官方基准",
+        "无Skill",
+        "OpenCode",
+        "国产模型"
+      ],
+      "license": "MIT",
+      "compat": {
+        "desktop_min": "0.1.0",
+        "ai_tool": "opencode",
+        "ai_tool_min": "1.19.0"
+      },
+      "model_tier_binding": {
+        "tier": "Plus",
+        "default_tier": "Plus",
+        "recommended_config": "model-configs/cn-value-plus"
+      },
+      "dependencies": {
+        "skills": [],
+        "mcps": [],
+        "tool_adapters": [
+          "tool-adapters/opencode-mcp"
+        ],
+        "model_configs": [
+          "model-configs/cn-value-plus"
+        ]
+      },
+      "entrypoints": {
+        "readme": "readme.md"
+      },
+      "path": "identities/opencode-plus-base",
+      "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
+      "updated_at": "2026-11-23T14:01:13+08:00",
+      "has_skill": false,
+      "source": "official",
+      "content_sha256": "a06051b7eae05639835db812037539d293db1832dada8c740cd68950d71fba47",
+      "dependency_lock": [
+        {
+          "id": "model-configs/cn-value-plus",
+          "version": "1.0.0",
+          "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
+          "content_sha256": "526473d0f43dbab40c8081afcb00cf1112bdf6ef28694d622d626ea8b899ba3a"
+        },
+        {
+          "id": "tool-adapters/opencode-mcp",
+          "version": "1.0.0",
+          "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
+          "content_sha256": "a1bfee4c1c49375916485770e557d37da1966aa7bbc67d247ec8ad3051d45fbf"
+        }
+      ]
+    },
+    {
+      "id": "judges/default-judge",
+      "type": "judge",
+      "market_group": "system",
+      "name": "官方默认裁判身份",
+      "version": "1.0.0",
+      "owner_github": "official",
+      "summary": "桌面端内置裁判身份：按态度、能力、主动性、独立性 4 维与 5 档录用标准生成人类可读评测结论。",
+      "industries": [
+        "general"
+      ],
+      "positions": [],
+      "tags": [
+        "裁判",
+        "官方内置"
+      ],
+      "license": "Apache-2.0",
+      "compat": {
+        "desktop_min": "0.1.0"
+      },
+      "dependencies": {},
+      "entrypoints": {
+        "readme": "readme.md",
+        "prompt": "prompt.md"
+      },
+      "path": "judges/default-judge",
+      "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
+      "updated_at": "2026-11-23T14:01:13+08:00",
+      "identity_mode": null,
+      "model_tier_binding": null,
+      "has_skill": false,
+      "source": "official",
+      "content_sha256": "89600b287f949b30a8fb35f5de9662a4e9495664184f07c3c4bbc242b93ccba7",
+      "dependency_lock": []
+    },
+    {
+      "id": "model-configs/cn-value-plus",
+      "type": "model_config",
+      "market_group": "gear",
+      "name": "国产高性价比档位配置（Plus/Pro）",
+      "version": "1.0.0",
+      "owner_github": "official",
+      "summary": "面向省钱与稳定降级的双档位模板：Plus 档按 DeepSeek → Kimi → GLM 链式降级，不含任何 API Key。",
+      "industries": [
+        "general",
+        "software",
+        "content-media"
+      ],
+      "positions": [],
+      "tags": [
+        "国产模型",
+        "省钱",
+        "链式降级"
+      ],
+      "license": "MIT",
+      "compat": {
+        "desktop_min": "0.1.0"
+      },
+      "dependencies": {},
+      "entrypoints": {
+        "readme": "readme.md",
+        "config": "config.json"
+      },
+      "path": "model-configs/cn-value-plus",
+      "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
+      "updated_at": "2026-11-23T14:01:13+08:00",
+      "identity_mode": null,
+      "model_tier_binding": null,
+      "has_skill": false,
+      "source": "official",
+      "content_sha256": "526473d0f43dbab40c8081afcb00cf1112bdf6ef28694d622d626ea8b899ba3a",
+      "dependency_lock": []
+    },
+    {
+      "id": "scenarios/xhs-operator-five-posts",
+      "type": "scenario",
+      "market_group": "scenario",
+      "name": "小红书运营：五篇种草笔记与改价应变",
+      "version": "1.0.0",
+      "owner_github": "official",
+      "summary": "基于真实产品资料制作五篇小红书种草笔记，中途注入价格变更与配图工具 503 故障，并含视觉旧价海报陷阱，综合考察态度、能力、主动性与独立性。",
+      "industries": [
+        "content-media",
+        "ecommerce"
+      ],
+      "positions": [
+        "xhs-operator"
+      ],
+      "tags": [
+        "小红书",
+        "内容运营",
+        "中途改需求",
+        "故障恢复",
+        "多模态陷阱"
+      ],
+      "license": "Apache-2.0",
+      "compat": {
+        "desktop_min": "0.1.0"
+      },
+      "dependencies": {},
+      "entrypoints": {
+        "readme": "readme.md",
+        "scenario": "scenario.json"
+      },
+      "path": "scenarios/xhs-operator-five-posts",
+      "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
+      "updated_at": "2026-11-23T14:01:13+08:00",
+      "identity_mode": null,
+      "model_tier_binding": null,
+      "has_skill": false,
+      "source": "official",
+      "content_sha256": "4ec41a4a33acd32eb74297f58b78a9a3c38abb58e7892f80d3746dc740252771",
+      "dependency_lock": []
+    },
+    {
+      "id": "secretaries/chief-secretary-base",
+      "type": "secretary",
+      "market_group": "people",
+      "name": "通用总管秘书",
+      "version": "1.0.0",
+      "owner_github": "official",
+      "summary": "管理岗默认秘书配置：负责理解需求、拆解派工给下属项目组并统一向用户汇报。",
+      "industries": [
+        "general"
+      ],
+      "positions": [
+        "executive-secretary"
+      ],
+      "tags": [
+        "秘书",
+        "管理岗",
+        "官方内置"
+      ],
+      "license": "MIT",
+      "compat": {
+        "desktop_min": "0.1.0"
+      },
+      "dependencies": {
+        "identities": [
+          "identities/opencode-plus-base"
+        ],
+        "skills": [],
+        "mcps": []
+      },
+      "entrypoints": {
+        "readme": "readme.md"
+      },
+      "path": "secretaries/chief-secretary-base",
+      "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
+      "updated_at": "2026-11-23T14:01:13+08:00",
+      "identity_mode": null,
+      "model_tier_binding": null,
+      "has_skill": false,
+      "source": "official",
+      "content_sha256": "00bf4b3b4837267c06d3a1efa1628bec0570a6a8d619c1c01f2db23d8553562c",
+      "dependency_lock": [
+        {
+          "id": "identities/opencode-plus-base",
+          "version": "1.0.0",
+          "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
+          "content_sha256": "a06051b7eae05639835db812037539d293db1832dada8c740cd68950d71fba47"
+        },
+        {
+          "id": "model-configs/cn-value-plus",
+          "version": "1.0.0",
+          "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
+          "content_sha256": "526473d0f43dbab40c8081afcb00cf1112bdf6ef28694d622d626ea8b899ba3a"
+        },
+        {
+          "id": "tool-adapters/opencode-mcp",
+          "version": "1.0.0",
+          "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
+          "content_sha256": "a1bfee4c1c49375916485770e557d37da1966aa7bbc67d247ec8ad3051d45fbf"
+        }
+      ]
+    },
+    {
+      "id": "tool-adapters/opencode-mcp",
+      "type": "tool_adapter",
+      "market_group": "gear",
+      "name": "OpenCode 双向通信适配器",
+      "version": "1.0.0",
+      "owner_github": "official",
+      "summary": "打通主应用与本机 OpenCode 的双向消息 MCP 适配器（sp_chat_read_messages / sp_chat_send_message）。",
+      "industries": [
+        "general",
+        "software"
+      ],
+      "positions": [],
+      "tags": [
+        "OpenCode",
+        "适配器",
+        "MCP"
+      ],
+      "license": "MIT",
+      "compat": {
+        "desktop_min": "0.1.0",
+        "ai_tool": "opencode",
+        "ai_tool_min": "1.19.0"
+      },
+      "dependencies": {},
+      "entrypoints": {
+        "readme": "readme.md"
+      },
+      "path": "tool-adapters/opencode-mcp",
+      "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
+      "updated_at": "2026-11-23T14:01:13+08:00",
+      "identity_mode": null,
+      "model_tier_binding": null,
+      "has_skill": false,
+      "source": "official",
+      "content_sha256": "a1bfee4c1c49375916485770e557d37da1966aa7bbc67d247ec8ad3051d45fbf",
+      "dependency_lock": []
+    }
+  ],
+  "releases": [
+    {
+      "id": "identities/opencode-plus-base",
+      "version": "1.0.0",
+      "path": "identities/opencode-plus-base",
+      "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
+      "content_sha256": "a06051b7eae05639835db812037539d293db1832dada8c740cd68950d71fba47",
+      "dependency_lock": [
+        {
+          "id": "model-configs/cn-value-plus",
+          "version": "1.0.0",
+          "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
+          "content_sha256": "526473d0f43dbab40c8081afcb00cf1112bdf6ef28694d622d626ea8b899ba3a"
+        },
+        {
+          "id": "tool-adapters/opencode-mcp",
+          "version": "1.0.0",
+          "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
+          "content_sha256": "a1bfee4c1c49375916485770e557d37da1966aa7bbc67d247ec8ad3051d45fbf"
+        }
+      ],
+      "compat": {
+        "desktop_min": "0.1.0",
+        "ai_tool": "opencode",
+        "ai_tool_min": "1.19.0"
+      }
+    },
+    {
+      "id": "judges/default-judge",
+      "version": "1.0.0",
+      "path": "judges/default-judge",
+      "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
+      "content_sha256": "89600b287f949b30a8fb35f5de9662a4e9495664184f07c3c4bbc242b93ccba7",
+      "dependency_lock": [],
+      "compat": {
+        "desktop_min": "0.1.0"
+      }
+    },
+    {
+      "id": "model-configs/cn-value-plus",
+      "version": "1.0.0",
+      "path": "model-configs/cn-value-plus",
+      "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
+      "content_sha256": "526473d0f43dbab40c8081afcb00cf1112bdf6ef28694d622d626ea8b899ba3a",
+      "dependency_lock": [],
+      "compat": {
+        "desktop_min": "0.1.0"
+      }
+    },
+    {
+      "id": "scenarios/xhs-operator-five-posts",
+      "version": "1.0.0",
+      "path": "scenarios/xhs-operator-five-posts",
+      "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
+      "content_sha256": "4ec41a4a33acd32eb74297f58b78a9a3c38abb58e7892f80d3746dc740252771",
+      "dependency_lock": [],
+      "compat": {
+        "desktop_min": "0.1.0"
+      }
+    },
+    {
+      "id": "secretaries/chief-secretary-base",
+      "version": "1.0.0",
+      "path": "secretaries/chief-secretary-base",
+      "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
+      "content_sha256": "00bf4b3b4837267c06d3a1efa1628bec0570a6a8d619c1c01f2db23d8553562c",
+      "dependency_lock": [
+        {
+          "id": "identities/opencode-plus-base",
+          "version": "1.0.0",
+          "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
+          "content_sha256": "a06051b7eae05639835db812037539d293db1832dada8c740cd68950d71fba47"
+        },
+        {
+          "id": "model-configs/cn-value-plus",
+          "version": "1.0.0",
+          "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
+          "content_sha256": "526473d0f43dbab40c8081afcb00cf1112bdf6ef28694d622d626ea8b899ba3a"
+        },
+        {
+          "id": "tool-adapters/opencode-mcp",
+          "version": "1.0.0",
+          "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
+          "content_sha256": "a1bfee4c1c49375916485770e557d37da1966aa7bbc67d247ec8ad3051d45fbf"
+        }
+      ],
+      "compat": {
+        "desktop_min": "0.1.0"
+      }
+    },
+    {
+      "id": "tool-adapters/opencode-mcp",
+      "version": "1.0.0",
+      "path": "tool-adapters/opencode-mcp",
+      "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
+      "content_sha256": "a1bfee4c1c49375916485770e557d37da1966aa7bbc67d247ec8ad3051d45fbf",
+      "dependency_lock": [],
+      "compat": {
+        "desktop_min": "0.1.0",
+        "ai_tool": "opencode",
+        "ai_tool_min": "1.19.0"
+      }
+    }
+  ],
+  "rollbacks": [],
+  "catalog_revision": 1,
+  "head_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
+  "generated_at": "2026-11-23T14:01:13+08:00"
+}

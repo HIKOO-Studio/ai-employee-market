@@ -1,0 +1,49 @@
+name: 申请新增行业或岗位词典
+description: 提议可供多个资源复用的行业或岗位条目，供维护者集中讨论。
+title: "[词典提案] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请先查阅[行业与岗位词典](https://github.com/HIKOO-Studio/ai-employee-market/blob/main/taxonomy.json)。找不到合适岗位时，可以先用已有行业、`positions: []` 和自由 `tags` 投稿，例如 `"positions": [], "tags": ["售后", "退货处理"]`。
+
+        如果多个资源都需要同一条目，请先查找已有提案，再补充或新开 Issue。维护者汇总后通过独立 PR 更新 `taxonomy.json`，资源投稿可以照常进行。
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: 词条类型
+      options:
+        - 行业（industries）
+        - 岗位（positions）
+    validations:
+      required: true
+
+  - type: input
+    id: name
+    attributes:
+      label: 建议的中文名称
+    validations:
+      required: true
+
+  - type: input
+    id: code
+    attributes:
+      label: 建议的词条代码
+      description: 沿用词典的小写英文和连字符命名方式，例如 after-sales。
+    validations:
+      required: true
+
+  - type: input
+    id: industry
+    attributes:
+      label: 所属行业（岗位提案填写）
+      description: 填写词典中的行业代码，例如 ecommerce。若所属行业也需新增，请注明建议名称。
+
+  - type: textarea
+    id: rationale
+    attributes:
+      label: 收录理由和适用资源
+      description: 哪些资源会共用这个词条？请举例说明现有词条和自由标签为何不足。
+    validations:
+      required: true

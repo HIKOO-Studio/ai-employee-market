@@ -1,0 +1,123 @@
+name: 申请收录开源资源 / 外部仓库
+description: 提交资源用途、版本和来源，供市场维护者审核。
+title: "[申请收录] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请为每个资源单独填写一份申请。维护者通过此 Issue 核对材料，资源在市场仓 PR 审核合并并发布后上架。
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: 资源类型
+      options:
+        - identities
+        - secretaries
+        - teams
+        - skills
+        - mcps
+        - model-configs
+        - tool-adapters
+        - scenarios
+    validations:
+      required: true
+
+  - type: input
+    id: name
+    attributes:
+      label: 资源名称
+    validations:
+      required: true
+
+  - type: input
+    id: summary
+    attributes:
+      label: 一句话简介
+      description: 这个资源帮谁完成什么工作？
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: 市场资源版本号
+      description: 使用 SemVer，例如 1.0.0 或 1.1.0-beta.1，省略 v 前缀和 +build 元数据。
+    validations:
+      required: true
+
+  - type: dropdown
+    id: license
+    attributes:
+      label: 开源协议（SPDX）
+      description: 选择资源清单 license 字段使用的协议。
+      options:
+        - MIT
+        - Apache-2.0
+        - BSD-2-Clause
+        - BSD-3-Clause
+        - ISC
+        - MPL-2.0
+        - GPL-3.0-only
+        - GPL-3.0-or-later
+        - AGPL-3.0-only
+        - CC-BY-4.0
+        - CC0-1.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: hosting
+    attributes:
+      label: 托管方式
+      options:
+        - 直接提交到本仓库
+        - 收录外部作者仓库
+    validations:
+      required: true
+
+  - type: input
+    id: repo_url
+    attributes:
+      label: 外部 GitHub 仓库 HTTPS 地址（外部收录必填）
+      description: 填写可公开访问的仓库首页地址。直接提交到本仓库时留空。
+      placeholder: https://github.com/owner/repo
+
+  - type: input
+    id: repo_path
+    attributes:
+      label: 外部仓库子目录（可选）
+      description: 填写相对于仓库根目录的路径。收录整仓时留空。
+      placeholder: packages/support
+
+  - type: input
+    id: commit_sha
+    attributes:
+      label: 完整 Commit SHA（外部收录必填）
+      description: 从上游提交详情复制 40 或 64 位小写十六进制哈希。分支名、标签和短 SHA 均不可用。直接提交到本仓库时留空。
+
+  - type: textarea
+    id: permissions
+    attributes:
+      label: 运行权限（可执行装备必填）
+      description: |
+        skills、mcps 和 tool-adapters 请按实际用途填写 permissions 对象。
+        shell（执行本机命令）和 network（联网）取 true 或 false。filesystem 取 none、workspace 或 full。
+        env 只列所需环境变量名，无需变量时填 []。其他类型可留空。
+      placeholder: |
+        {"shell": false, "network": true, "filesystem": "workspace", "env": []}
+      render: json
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: 投稿自查
+      options:
+        - label: 我已检查申请材料与资源文件，其中不含明文 API Key、Token 或私钥。
+          required: true
+        - label: 我同意按所选开源协议发布，已核对上游源码和随包素材的授权。
+          required: true
+        - label: 我同意市场审核规则。新增资源须经独立 Admin 批准，修改已有资源须由原 Owner 与独立 Admin 双审，Owner 本人提交即视为本人确认。
+          required: true
+        - label: 若申请外部收录，我已填写仓库地址和完整 Commit SHA。若提交可执行装备，我已声明运行权限。
+          required: true

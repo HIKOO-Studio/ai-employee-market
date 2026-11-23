@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 市场投稿指南（README）
+    url: https://github.com/HIKOO-Studio/ai-employee-market/blob/main/README.md
+    about: 查看资源目录结构、PR 审核流程和版本规则。

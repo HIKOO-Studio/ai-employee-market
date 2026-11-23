@@ -1,0 +1,76 @@
+name: Build Market Manifest & Notify Backend
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-market-main
+  cancel-in-progress: false
+
+jobs:
+  build-and-sync:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main (full history for per-item commit_sha)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Validate entire repository
+        run: node scripts/validate.mjs --all
+
+      - name: Verify market release invariants
+        run: node --test scripts/*.test.mjs
+
+      - name: Publish immutable index on the checked main revision
+        env:
+          MARKET_REPO: ${{ github.repository }}
+          MIRROR_BASE_URL: ${{ vars.MIRROR_BASE_URL }}
+        run: |
+          git config user.name "market-bot"
+          git config user.email "market-bot@users.noreply.github.com"
+          # Only the protected parent supplies release history. HEAD supplies package files.
+          base=$(git rev-parse --verify HEAD^1 2>/dev/null || git rev-parse HEAD)
+          node scripts/build-manifest.mjs --base-ref "$base"
+          if ! git diff --quiet manifest.json owners.json; then
+            git add manifest.json owners.json
+            git commit -m "chore(market): rebuild manifest.json & owners.json [skip ci]"
+            git push origin HEAD:main
+          fi
+
+      - name: Notify backend webhook to refresh DB index (HMAC-SHA256)
+        env:
+          WEBHOOK_URL: ${{ secrets.BACKEND_SYNC_WEBHOOK_URL }}
+          WEBHOOK_SECRET: ${{ secrets.BACKEND_SYNC_WEBHOOK_SECRET }}
+        run: |
+          if [ -z "$WEBHOOK_URL" ] && [ -z "$WEBHOOK_SECRET" ]; then exit 0; fi
+          test -n "$WEBHOOK_URL" && test -n "$WEBHOOK_SECRET" || exit 1
+          node -e '
+            const crypto = require("crypto");
+            const index = require("./manifest.json");
+            const payload = JSON.stringify({ repo: index.repo, head_sha: index.head_sha, catalog_revision: index.catalog_revision, triggered_at: new Date().toISOString() });
+            const sig = crypto.createHmac("sha256", process.env.WEBHOOK_SECRET).update(payload).digest("hex");
+            fetch(process.env.WEBHOOK_URL, {
+              method: "POST",
+              headers: { "Content-Type": "application/json", "X-Market-Signature": "sha256=" + sig },
+              body: payload
+            }).then(async (r) => {
+              if (!r.ok) {
+                console.error("Webhook failed:", r.status, await r.text());
+                process.exit(1);
+              }
+              console.log("Backend sync triggered:", r.status);
+            });
+          '

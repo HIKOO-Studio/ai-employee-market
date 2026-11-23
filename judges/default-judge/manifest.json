@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "id": "judges/default-judge",
+  "type": "judge",
+  "market_group": "system",
+  "name": "官方默认裁判身份",
+  "version": "1.0.0",
+  "owner_github": "official",
+  "summary": "桌面端内置裁判身份：按态度、能力、主动性、独立性 4 维与 5 档录用标准生成人类可读评测结论。",
+  "industries": ["general"],
+  "positions": [],
+  "tags": ["裁判", "官方内置"],
+  "license": "Apache-2.0",
+  "compat": {
+    "desktop_min": "0.1.0"
+  },
+  "dependencies": {},
+  "entrypoints": {
+    "readme": "readme.md",
+    "prompt": "prompt.md"
+  }
+}

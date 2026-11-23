@@ -1,0 +1,17 @@
+{
+  "version": "1.0.0",
+  "industries": [
+    { "code": "software", "name": "软件研发" },
+    { "code": "content-media", "name": "内容与新媒体" },
+    { "code": "ecommerce", "name": "电商与增长" },
+    { "code": "general", "name": "通用办公" }
+  ],
+  "positions": [
+    { "code": "xhs-operator", "name": "小红书运营", "industry": "content-media" },
+    { "code": "douyin-operator", "name": "抖音运营", "industry": "content-media" },
+    { "code": "developer", "name": "开发工程师", "industry": "software" },
+    { "code": "video-editor", "name": "视频剪辑", "industry": "content-media" },
+    { "code": "novelist", "name": "网文写作", "industry": "content-media" },
+    { "code": "executive-secretary", "name": "通用秘书", "industry": "general" }
+  ]
+}

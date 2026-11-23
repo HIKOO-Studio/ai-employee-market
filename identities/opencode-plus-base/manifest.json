@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "id": "identities/opencode-plus-base",
+  "type": "identity",
+  "market_group": "people",
+  "name": "OpenCode · Plus 纯身份基准",
+  "version": "1.0.0",
+  "owner_github": "official",
+  "summary": "无 Skill 绑定的官方纯身份基准：OpenCode + 国产 Plus 档位（DeepSeek → Kimi → GLM），用于官方底层横评。",
+  "identity_mode": "both",
+  "industries": ["general", "content-media", "software"],
+  "positions": ["xhs-operator", "developer"],
+  "tags": ["官方基准", "无Skill", "OpenCode", "国产模型"],
+  "license": "MIT",
+  "compat": {
+    "desktop_min": "0.1.0",
+    "ai_tool": "opencode",
+    "ai_tool_min": "1.19.0"
+  },
+  "model_tier_binding": {
+    "tier": "Plus",
+    "default_tier": "Plus",
+    "recommended_config": "model-configs/cn-value-plus"
+  },
+  "dependencies": {
+    "skills": [],
+    "mcps": [],
+    "tool_adapters": ["tool-adapters/opencode-mcp"],
+    "model_configs": ["model-configs/cn-value-plus"]
+  },
+  "entrypoints": {
+    "readme": "readme.md"
+  }
+}

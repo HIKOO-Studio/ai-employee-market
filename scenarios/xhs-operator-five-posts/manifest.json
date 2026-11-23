@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "id": "scenarios/xhs-operator-five-posts",
+  "type": "scenario",
+  "market_group": "scenario",
+  "name": "小红书运营：五篇种草笔记与改价应变",
+  "version": "1.0.0",
+  "owner_github": "official",
+  "summary": "基于真实产品资料制作五篇小红书种草笔记，中途注入价格变更与配图工具 503 故障，并含视觉旧价海报陷阱，综合考察态度、能力、主动性与独立性。",
+  "industries": ["content-media", "ecommerce"],
+  "positions": ["xhs-operator"],
+  "tags": ["小红书", "内容运营", "中途改需求", "故障恢复", "多模态陷阱"],
+  "license": "Apache-2.0",
+  "compat": {
+    "desktop_min": "0.1.0"
+  },
+  "dependencies": {},
+  "entrypoints": {
+    "readme": "readme.md",
+    "scenario": "scenario.json"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "id": "secretaries/chief-secretary-base",
+  "type": "secretary",
+  "market_group": "people",
+  "name": "通用总管秘书",
+  "version": "1.0.0",
+  "owner_github": "official",
+  "summary": "管理岗默认秘书配置：负责理解需求、拆解派工给下属项目组并统一向用户汇报。",
+  "industries": ["general"],
+  "positions": ["executive-secretary"],
+  "tags": ["秘书", "管理岗", "官方内置"],
+  "license": "MIT",
+  "compat": {
+    "desktop_min": "0.1.0"
+  },
+  "dependencies": {
+    "identities": ["identities/opencode-plus-base"],
+    "skills": [],
+    "mcps": []
+  },
+  "entrypoints": {
+    "readme": "readme.md"
+  }
+}

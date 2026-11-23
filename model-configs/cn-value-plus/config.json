@@ -1,0 +1,21 @@
+{
+  "default_tier": "Plus",
+  "tiers": [
+    {
+      "name": "Plus",
+      "chain": [
+        { "provider": "deepseek", "model": "deepseek-v4.1-flash" },
+        { "provider": "kimi", "model": "kimi-k3" },
+        { "provider": "glm", "model": "glm-5.3" }
+      ]
+    },
+    {
+      "name": "Pro",
+      "chain": [
+        { "provider": "openai", "model": "gpt-5.6-luna" },
+        { "provider": "kimi", "model": "kimi-k3" },
+        { "provider": "anthropic", "model": "claude-sonnet" }
+      ]
+    }
+  ]
+}

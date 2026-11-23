@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "id": "tool-adapters/opencode-mcp",
+  "type": "tool_adapter",
+  "market_group": "gear",
+  "name": "OpenCode 双向通信适配器",
+  "version": "1.0.0",
+  "owner_github": "official",
+  "summary": "打通主应用与本机 OpenCode 的双向消息 MCP 适配器（sp_chat_read_messages / sp_chat_send_message）。",
+  "industries": ["general", "software"],
+  "positions": [],
+  "tags": ["OpenCode", "适配器", "MCP"],
+  "license": "MIT",
+  "compat": {
+    "desktop_min": "0.1.0",
+    "ai_tool": "opencode",
+    "ai_tool_min": "1.19.0"
+  },
+  "dependencies": {},
+  "entrypoints": {
+    "readme": "readme.md"
+  }
+}

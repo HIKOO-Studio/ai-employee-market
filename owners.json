@@ -1,10 +1,12 @@
 {
   "identities/opencode-plus-base": "official",
   "judges/default-judge": "official",
+  "mcps/filesystem-readonly": "official",
   "mcps/timezone-clock": "official",
   "model-configs/cn-value-plus": "official",
   "scenarios/xhs-operator-five-posts": "official",
   "secretaries/chief-secretary-base": "official",
   "skills/xhs-copywriting-basics": "official",
+  "teams/xhs-content-team": "official",
   "tool-adapters/opencode-mcp": "official"
 }

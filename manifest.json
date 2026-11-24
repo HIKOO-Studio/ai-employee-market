@@ -3,16 +3,16 @@
   "repo": "HIKOO-Studio/ai-employee-market",
   "mirror_base_url": "",
   "taxonomy_sha": "1a35558915c6f939",
-  "item_count": 8,
+  "item_count": 10,
   "items": [
     {
       "id": "identities/opencode-plus-base",
       "type": "identity",
       "market_group": "people",
-      "name": "OpenCode · Plus 纯身份基准",
-      "version": "1.0.0",
+      "name": "OpenCode · Plus 版",
+      "version": "1.1.1",
       "owner_github": "official",
-      "summary": "无 Skill 绑定的官方纯身份基准：OpenCode + 国产 Plus 档位（DeepSeek → Kimi → GLM），用于官方底层横评。",
+      "summary": "官方基准配置：OpenCode + Plus 档（DeepSeek → Kimi → GLM），不挂任何技能——先看这套组合本身能干什么。",
       "identity_mode": "both",
       "industries": [
         "general",
@@ -24,10 +24,9 @@
         "developer"
       ],
       "tags": [
-        "官方基准",
-        "无Skill",
-        "OpenCode",
-        "国产模型"
+        "通用",
+        "写代码",
+        "高性价比"
       ],
       "license": "MIT",
       "compat": {
@@ -54,17 +53,17 @@
         "readme": "readme.md"
       },
       "path": "identities/opencode-plus-base",
-      "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
-      "updated_at": "2026-11-23T14:01:13+08:00",
+      "commit_sha": "53571b0070f78e692a318ec6b7bc9d750fa75d85",
+      "updated_at": "2026-11-24T09:09:41+08:00",
       "has_skill": false,
       "source": "official",
-      "content_sha256": "a06051b7eae05639835db812037539d293db1832dada8c740cd68950d71fba47",
+      "content_sha256": "49880a4701e166dd4f25ad75614ce7133a2788e8f8b6bfab2e19c3c31de1ac10",
       "dependency_lock": [
         {
           "id": "model-configs/cn-value-plus",
-          "version": "1.0.0",
-          "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
-          "content_sha256": "526473d0f43dbab40c8081afcb00cf1112bdf6ef28694d622d626ea8b899ba3a"
+          "version": "1.0.1",
+          "commit_sha": "ea7d64ac543bef5362152c06a9cfee17534310d3",
+          "content_sha256": "20c10f11f279d610df978ec2087f7266a0b434f2c02731625fc30d1517bafbf8"
         },
         {
           "id": "tool-adapters/opencode-mcp",
@@ -79,9 +78,9 @@
       "type": "judge",
       "market_group": "system",
       "name": "官方默认裁判身份",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "owner_github": "official",
-      "summary": "桌面端内置裁判身份：按态度、能力、主动性、独立性 4 维与 5 档录用标准生成人类可读评测结论。",
+      "summary": "桌面端内置裁判身份：按态度、能力、主动性、独立性四维百分制（0–100）与 5 档录用标准生成带证据的人类可读评测结论。",
       "industries": [
         "general"
       ],
@@ -100,13 +99,60 @@
         "prompt": "prompt.md"
       },
       "path": "judges/default-judge",
-      "commit_sha": "63c14ab63d4ab1b9924db8c773e4a004bfd89f42",
-      "updated_at": "2026-11-24T10:09:45+08:00",
+      "commit_sha": "ed2f2a2dd697057d0efa6f516c0ca6f3d162b2b8",
+      "updated_at": "2026-11-24T15:14:51+08:00",
       "identity_mode": null,
       "model_tier_binding": null,
       "has_skill": false,
       "source": "official",
-      "content_sha256": "8dd4a12e94db77607a597a707b3b4535a8e3027eba2c92c4ed24424a67cd63bc",
+      "content_sha256": "bad93c7559022e673a17e136e3fa1e72e852a8d81264ac5021ca47113dda8885",
+      "dependency_lock": []
+    },
+    {
+      "id": "mcps/filesystem-readonly",
+      "type": "mcp",
+      "market_group": "gear",
+      "name": "工作区文件访问 MCP（标准声明）",
+      "version": "1.0.0",
+      "owner_github": "official",
+      "summary": "遵循标准 mcpServers 声明规范的工作区文件访问 MCP 配置，包本体来自公共 npm 源并锁定精确版本，不含任何明文密钥。",
+      "industries": [
+        "general",
+        "software"
+      ],
+      "positions": [
+        "developer",
+        "executive-secretary"
+      ],
+      "tags": [
+        "MCP",
+        "文件系统",
+        "标准声明"
+      ],
+      "license": "MIT",
+      "compat": {
+        "desktop_min": "0.1.0",
+        "ai_tool": "opencode",
+        "ai_tool_min": "1.19.0"
+      },
+      "dependencies": {},
+      "entrypoints": {
+        "mcp": "mcp.json",
+        "readme": "readme.md"
+      },
+      "permissions": {
+        "filesystem": "继承运行进程对所选工作区的读写权限；需要只读时请传入只读挂载。",
+        "network": "npx 首次运行或缺少缓存时会下载固定版本的 npm 包。",
+        "process": "客户端在本地运行 npx，通过标准输入输出与文件服务通信。"
+      },
+      "path": "mcps/filesystem-readonly",
+      "commit_sha": "ed2f2a2dd697057d0efa6f516c0ca6f3d162b2b8",
+      "updated_at": "2026-11-24T15:14:51+08:00",
+      "identity_mode": null,
+      "model_tier_binding": null,
+      "has_skill": false,
+      "source": "official",
+      "content_sha256": "ce74a54f95d4ef2d655c5554fc367a2d941416ae1fcb59d1611507714f27dd1d",
       "dependency_lock": []
     },
     {
@@ -162,8 +208,8 @@
       "id": "model-configs/cn-value-plus",
       "type": "model_config",
       "market_group": "gear",
-      "name": "国产高性价比档位配置（Plus/Pro）",
-      "version": "1.0.0",
+      "name": "高性价比链式降级配置（Plus/Pro）",
+      "version": "1.0.1",
       "owner_github": "official",
       "summary": "面向省钱与稳定降级的双档位模板：Plus 档按 DeepSeek → Kimi → GLM 链式降级，不含任何 API Key。",
       "industries": [
@@ -173,7 +219,7 @@
       ],
       "positions": [],
       "tags": [
-        "国产模型",
+        "高性价比",
         "省钱",
         "链式降级"
       ],
@@ -187,13 +233,13 @@
         "config": "config.json"
       },
       "path": "model-configs/cn-value-plus",
-      "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
-      "updated_at": "2026-11-23T14:01:13+08:00",
+      "commit_sha": "ea7d64ac543bef5362152c06a9cfee17534310d3",
+      "updated_at": "2026-11-24T09:09:40+08:00",
       "identity_mode": null,
       "model_tier_binding": null,
       "has_skill": false,
       "source": "official",
-      "content_sha256": "526473d0f43dbab40c8081afcb00cf1112bdf6ef28694d622d626ea8b899ba3a",
+      "content_sha256": "20c10f11f279d610df978ec2087f7266a0b434f2c02731625fc30d1517bafbf8",
       "dependency_lock": []
     },
     {
@@ -201,7 +247,7 @@
       "type": "scenario",
       "market_group": "scenario",
       "name": "小红书运营：五篇种草笔记与改价应变",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "owner_github": "official",
       "summary": "基于真实产品资料制作五篇小红书种草笔记，中途注入价格变更与配图工具 503 故障，并含视觉旧价海报陷阱，综合考察态度、能力、主动性与独立性。",
       "industries": [
@@ -228,13 +274,13 @@
         "scenario": "scenario.json"
       },
       "path": "scenarios/xhs-operator-five-posts",
-      "commit_sha": "63c14ab63d4ab1b9924db8c773e4a004bfd89f42",
-      "updated_at": "2026-11-24T10:09:45+08:00",
+      "commit_sha": "ed2f2a2dd697057d0efa6f516c0ca6f3d162b2b8",
+      "updated_at": "2026-11-24T15:14:51+08:00",
       "identity_mode": null,
       "model_tier_binding": null,
       "has_skill": false,
       "source": "official",
-      "content_sha256": "db79cb19112b68f34beb3e9d6ab86fed58de5961ae410b80c8dd3bcdcc10f7d3",
+      "content_sha256": "598a3549b52a496336f7d8e72e59d2a3631bae65da69484c04ad835fb4252e51",
       "dependency_lock": []
     },
     {
@@ -304,7 +350,7 @@
       "type": "skill",
       "market_group": "gear",
       "name": "小红书笔记起草与核对",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "owner_github": "official",
       "summary": "根据用户提供的品牌、受众和价格资料撰写图文草稿，并核对价格、活动时间和卖点。",
       "industries": [
@@ -316,14 +362,17 @@
       "tags": [
         "小红书",
         "文案",
-        "内容核对"
+        "内容核对",
+        "合规自检"
       ],
       "license": "Apache-2.0",
       "compat": {
         "desktop_min": "0.1.0",
         "external_clients": [
           "claude-code"
-        ]
+        ],
+        "ai_tool": "opencode",
+        "ai_tool_min": "1.19.0"
       },
       "permissions": {
         "shell": false,
@@ -336,14 +385,78 @@
         "skill": "SKILL.md"
       },
       "path": "skills/xhs-copywriting-basics",
-      "commit_sha": "0ca055b968e0b7e9f45bf5c731e9066378f234dc",
-      "updated_at": "2026-11-24T13:09:17+08:00",
+      "commit_sha": "ed2f2a2dd697057d0efa6f516c0ca6f3d162b2b8",
+      "updated_at": "2026-11-24T15:14:51+08:00",
+      "identity_mode": null,
+      "model_tier_binding": null,
+      "has_skill": true,
+      "source": "official",
+      "content_sha256": "96c8e57b92f81fb434c1715f4e45ab947524a7badf50e8ec1459fea04d36dc83",
+      "dependency_lock": []
+    },
+    {
+      "id": "teams/xhs-content-team",
+      "type": "team",
+      "market_group": "people",
+      "name": "小红书内容执行项目组",
+      "version": "1.0.0",
+      "owner_github": "official",
+      "summary": "面向小红书种草与品牌内容交付的官方示例项目组：由策略选题、文案写作与合规审校分工协作，底层基于 OpenCode · Plus 版身份。",
+      "industries": [
+        "content-media",
+        "ecommerce"
+      ],
+      "positions": [
+        "xhs-operator"
+      ],
+      "tags": [
+        "小红书",
+        "内容运营",
+        "多成员协作",
+        "官方示例"
+      ],
+      "license": "MIT",
+      "compat": {
+        "desktop_min": "0.1.0"
+      },
+      "dependencies": {
+        "identities": [
+          "identities/opencode-plus-base"
+        ],
+        "skills": [],
+        "mcps": []
+      },
+      "entrypoints": {
+        "readme": "readme.md"
+      },
+      "path": "teams/xhs-content-team",
+      "commit_sha": "a9edfe2780cea44e1137db972bceebf9a9d84007",
+      "updated_at": "2026-11-24T09:09:42+08:00",
       "identity_mode": null,
       "model_tier_binding": null,
       "has_skill": false,
       "source": "official",
-      "content_sha256": "7541989357498c46af1715ea81ce41d0eef49f916a8fde94ebb5a6e4f960b832",
-      "dependency_lock": []
+      "content_sha256": "ae7e6104424cf040e2f0783800f19b4fb38350905f64ff527d414c78fc0ac0f8",
+      "dependency_lock": [
+        {
+          "id": "identities/opencode-plus-base",
+          "version": "1.1.1",
+          "commit_sha": "53571b0070f78e692a318ec6b7bc9d750fa75d85",
+          "content_sha256": "49880a4701e166dd4f25ad75614ce7133a2788e8f8b6bfab2e19c3c31de1ac10"
+        },
+        {
+          "id": "model-configs/cn-value-plus",
+          "version": "1.0.1",
+          "commit_sha": "ea7d64ac543bef5362152c06a9cfee17534310d3",
+          "content_sha256": "20c10f11f279d610df978ec2087f7266a0b434f2c02731625fc30d1517bafbf8"
+        },
+        {
+          "id": "tool-adapters/opencode-mcp",
+          "version": "1.0.0",
+          "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
+          "content_sha256": "a1bfee4c1c49375916485770e557d37da1966aa7bbc67d247ec8ad3051d45fbf"
+        }
+      ]
     },
     {
       "id": "tool-adapters/opencode-mcp",
@@ -412,6 +525,32 @@
       }
     },
     {
+      "id": "identities/opencode-plus-base",
+      "version": "1.1.1",
+      "path": "identities/opencode-plus-base",
+      "commit_sha": "53571b0070f78e692a318ec6b7bc9d750fa75d85",
+      "content_sha256": "49880a4701e166dd4f25ad75614ce7133a2788e8f8b6bfab2e19c3c31de1ac10",
+      "dependency_lock": [
+        {
+          "id": "model-configs/cn-value-plus",
+          "version": "1.0.1",
+          "commit_sha": "ea7d64ac543bef5362152c06a9cfee17534310d3",
+          "content_sha256": "20c10f11f279d610df978ec2087f7266a0b434f2c02731625fc30d1517bafbf8"
+        },
+        {
+          "id": "tool-adapters/opencode-mcp",
+          "version": "1.0.0",
+          "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
+          "content_sha256": "a1bfee4c1c49375916485770e557d37da1966aa7bbc67d247ec8ad3051d45fbf"
+        }
+      ],
+      "compat": {
+        "desktop_min": "0.1.0",
+        "ai_tool": "opencode",
+        "ai_tool_min": "1.19.0"
+      }
+    },
+    {
       "id": "judges/default-judge",
       "version": "1.0.0",
       "path": "judges/default-judge",
@@ -431,6 +570,30 @@
       "dependency_lock": [],
       "compat": {
         "desktop_min": "0.1.0"
+      }
+    },
+    {
+      "id": "judges/default-judge",
+      "version": "1.2.0",
+      "path": "judges/default-judge",
+      "commit_sha": "ed2f2a2dd697057d0efa6f516c0ca6f3d162b2b8",
+      "content_sha256": "bad93c7559022e673a17e136e3fa1e72e852a8d81264ac5021ca47113dda8885",
+      "dependency_lock": [],
+      "compat": {
+        "desktop_min": "0.1.0"
+      }
+    },
+    {
+      "id": "mcps/filesystem-readonly",
+      "version": "1.0.0",
+      "path": "mcps/filesystem-readonly",
+      "commit_sha": "ed2f2a2dd697057d0efa6f516c0ca6f3d162b2b8",
+      "content_sha256": "ce74a54f95d4ef2d655c5554fc367a2d941416ae1fcb59d1611507714f27dd1d",
+      "dependency_lock": [],
+      "compat": {
+        "desktop_min": "0.1.0",
+        "ai_tool": "opencode",
+        "ai_tool_min": "1.19.0"
       }
     },
     {
@@ -459,6 +622,17 @@
       }
     },
     {
+      "id": "model-configs/cn-value-plus",
+      "version": "1.0.1",
+      "path": "model-configs/cn-value-plus",
+      "commit_sha": "ea7d64ac543bef5362152c06a9cfee17534310d3",
+      "content_sha256": "20c10f11f279d610df978ec2087f7266a0b434f2c02731625fc30d1517bafbf8",
+      "dependency_lock": [],
+      "compat": {
+        "desktop_min": "0.1.0"
+      }
+    },
+    {
       "id": "scenarios/xhs-operator-five-posts",
       "version": "1.0.0",
       "path": "scenarios/xhs-operator-five-posts",
@@ -475,6 +649,23 @@
       "path": "scenarios/xhs-operator-five-posts",
       "commit_sha": "63c14ab63d4ab1b9924db8c773e4a004bfd89f42",
       "content_sha256": "db79cb19112b68f34beb3e9d6ab86fed58de5961ae410b80c8dd3bcdcc10f7d3",
+      "dependency_lock": [],
+      "core_checks": {
+        "posts-exist": [
+          "identity",
+          "team"
+        ]
+      },
+      "compat": {
+        "desktop_min": "0.1.0"
+      }
+    },
+    {
+      "id": "scenarios/xhs-operator-five-posts",
+      "version": "1.1.1",
+      "path": "scenarios/xhs-operator-five-posts",
+      "commit_sha": "ed2f2a2dd697057d0efa6f516c0ca6f3d162b2b8",
+      "content_sha256": "598a3549b52a496336f7d8e72e59d2a3631bae65da69484c04ad835fb4252e51",
       "dependency_lock": [],
       "core_checks": {
         "posts-exist": [
@@ -531,6 +722,52 @@
       }
     },
     {
+      "id": "skills/xhs-copywriting-basics",
+      "version": "1.1.0",
+      "path": "skills/xhs-copywriting-basics",
+      "commit_sha": "ed2f2a2dd697057d0efa6f516c0ca6f3d162b2b8",
+      "content_sha256": "96c8e57b92f81fb434c1715f4e45ab947524a7badf50e8ec1459fea04d36dc83",
+      "dependency_lock": [],
+      "compat": {
+        "desktop_min": "0.1.0",
+        "external_clients": [
+          "claude-code"
+        ],
+        "ai_tool": "opencode",
+        "ai_tool_min": "1.19.0"
+      }
+    },
+    {
+      "id": "teams/xhs-content-team",
+      "version": "1.0.0",
+      "path": "teams/xhs-content-team",
+      "commit_sha": "a9edfe2780cea44e1137db972bceebf9a9d84007",
+      "content_sha256": "ae7e6104424cf040e2f0783800f19b4fb38350905f64ff527d414c78fc0ac0f8",
+      "dependency_lock": [
+        {
+          "id": "identities/opencode-plus-base",
+          "version": "1.1.1",
+          "commit_sha": "53571b0070f78e692a318ec6b7bc9d750fa75d85",
+          "content_sha256": "49880a4701e166dd4f25ad75614ce7133a2788e8f8b6bfab2e19c3c31de1ac10"
+        },
+        {
+          "id": "model-configs/cn-value-plus",
+          "version": "1.0.1",
+          "commit_sha": "ea7d64ac543bef5362152c06a9cfee17534310d3",
+          "content_sha256": "20c10f11f279d610df978ec2087f7266a0b434f2c02731625fc30d1517bafbf8"
+        },
+        {
+          "id": "tool-adapters/opencode-mcp",
+          "version": "1.0.0",
+          "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
+          "content_sha256": "a1bfee4c1c49375916485770e557d37da1966aa7bbc67d247ec8ad3051d45fbf"
+        }
+      ],
+      "compat": {
+        "desktop_min": "0.1.0"
+      }
+    },
+    {
       "id": "tool-adapters/opencode-mcp",
       "version": "1.0.0",
       "path": "tool-adapters/opencode-mcp",
@@ -545,7 +782,7 @@
     }
   ],
   "rollbacks": [],
-  "catalog_revision": 3,
-  "head_sha": "0ca055b968e0b7e9f45bf5c731e9066378f234dc",
-  "generated_at": "2026-11-24T13:09:17+08:00"
+  "catalog_revision": 5,
+  "head_sha": "ed2f2a2dd697057d0efa6f516c0ca6f3d162b2b8",
+  "generated_at": "2026-11-24T15:14:51+08:00"
 }

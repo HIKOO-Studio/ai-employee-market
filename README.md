@@ -25,6 +25,8 @@
 ## 提交流程（PR 规则）
 
 1. Fork 本仓库，在对应分类目录下新建 `<slug>/`，至少包含 `manifest.json` 与 `readme.md`；
+   - Skill 资源的根目录提供普通文件 `SKILL.md`，用 YAML frontmatter 声明 `name`、`description`，随后写技能指令。
+   - MCP 资源的根目录提供普通文件 `mcp.json`，在 `mcpServers` 中声明本地命令或远程 URL。引用 npm、PyPI 包时应固定版本，校验会拒绝 `@latest`。第三方服务源码和凭据由上游维护。
 2. 严禁修改根目录 `manifest.json` 和 `owners.json`，严禁包含任何 API Key / Token / 私钥；
 3. 提交 PR 后将自动运行 `pr-validate` 校验：
    - **新增资源**：校验通过 + 平台 Admin 审批合入，合入后你的 GitHub 账号自动登记为唯一 `owner`；

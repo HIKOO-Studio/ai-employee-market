@@ -3,13 +3,13 @@
   "id": "model-configs/cn-value-plus",
   "type": "model_config",
   "market_group": "gear",
-  "name": "国产高性价比档位配置（Plus/Pro）",
-  "version": "1.0.0",
+  "name": "高性价比链式降级配置（Plus/Pro）",
+  "version": "1.0.1",
   "owner_github": "official",
   "summary": "面向省钱与稳定降级的双档位模板：Plus 档按 DeepSeek → Kimi → GLM 链式降级，不含任何 API Key。",
   "industries": ["general", "software", "content-media"],
   "positions": [],
-  "tags": ["国产模型", "省钱", "链式降级"],
+  "tags": ["高性价比", "省钱", "链式降级"],
   "license": "MIT",
   "compat": {
     "desktop_min": "0.1.0"

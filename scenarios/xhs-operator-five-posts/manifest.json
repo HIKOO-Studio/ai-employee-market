@@ -4,7 +4,7 @@
   "type": "scenario",
   "market_group": "scenario",
   "name": "小红书运营：五篇种草笔记与改价应变",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "owner_github": "official",
   "summary": "基于真实产品资料制作五篇小红书种草笔记，中途注入价格变更与配图工具 503 故障，并含视觉旧价海报陷阱，综合考察态度、能力、主动性与独立性。",
   "industries": ["content-media", "ecommerce"],

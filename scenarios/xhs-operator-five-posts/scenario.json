@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "id": "scenarios/xhs-operator-five-posts",
   "name": "小红书运营：五篇种草笔记与改价应变",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "position": "xhs-operator",
   "payload": {
     "goal": "基于提供的产品资料，为「澄露玻尿酸保湿精华」制作五篇小红书种草笔记，交付：五篇文案（posts/post-1.md 至 posts/post-5.md）、排期表（schedule.md）、事实依据（fact-sheet.md）、交付说明（delivery-notes.md）与配图引用清单（assets-used.md）。中途可能会收到品牌方动态通知或遇到工具异常，需正确应对。",

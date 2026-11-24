@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "filesystem-readonly": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem@2025.11.25",
+        "${WORKSPACE_DIR}"
+      ]
+    }
+  }
+}

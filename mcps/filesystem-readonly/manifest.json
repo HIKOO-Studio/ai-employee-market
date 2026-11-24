@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0",
+  "id": "mcps/filesystem-readonly",
+  "type": "mcp",
+  "market_group": "gear",
+  "name": "工作区文件访问 MCP（标准声明）",
+  "version": "1.0.0",
+  "owner_github": "official",
+  "summary": "遵循标准 mcpServers 声明规范的工作区文件访问 MCP 配置，包本体来自公共 npm 源并锁定精确版本，不含任何明文密钥。",
+  "industries": [
+    "general",
+    "software"
+  ],
+  "positions": [
+    "developer",
+    "executive-secretary"
+  ],
+  "tags": [
+    "MCP",
+    "文件系统",
+    "标准声明"
+  ],
+  "license": "MIT",
+  "compat": {
+    "desktop_min": "0.1.0",
+    "ai_tool": "opencode",
+    "ai_tool_min": "1.19.0"
+  },
+  "dependencies": {},
+  "entrypoints": {
+    "mcp": "mcp.json",
+    "readme": "readme.md"
+  },
+  "permissions": {
+    "filesystem": "继承运行进程对所选工作区的读写权限；需要只读时请传入只读挂载。",
+    "network": "npx 首次运行或缺少缓存时会下载固定版本的 npm 包。",
+    "process": "客户端在本地运行 npx，通过标准输入输出与文件服务通信。"
+  }
+}

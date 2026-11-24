@@ -4,7 +4,7 @@
   "type": "skill",
   "market_group": "gear",
   "name": "小红书笔记起草与核对",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "owner_github": "official",
   "summary": "根据用户提供的品牌、受众和价格资料撰写图文草稿，并核对价格、活动时间和卖点。",
   "industries": [
@@ -16,14 +16,17 @@
   "tags": [
     "小红书",
     "文案",
-    "内容核对"
+    "内容核对",
+    "合规自检"
   ],
   "license": "Apache-2.0",
   "compat": {
     "desktop_min": "0.1.0",
     "external_clients": [
       "claude-code"
-    ]
+    ],
+    "ai_tool": "opencode",
+    "ai_tool_min": "1.19.0"
   },
   "permissions": {
     "shell": false,

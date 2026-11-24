@@ -3,7 +3,7 @@
   "repo": "HIKOO-Studio/ai-employee-market",
   "mirror_base_url": "",
   "taxonomy_sha": "1a35558915c6f939",
-  "item_count": 6,
+  "item_count": 8,
   "items": [
     {
       "id": "identities/opencode-plus-base",
@@ -107,6 +107,55 @@
       "has_skill": false,
       "source": "official",
       "content_sha256": "8dd4a12e94db77607a597a707b3b4535a8e3027eba2c92c4ed24424a67cd63bc",
+      "dependency_lock": []
+    },
+    {
+      "id": "mcps/timezone-clock",
+      "type": "mcp",
+      "market_group": "gear",
+      "name": "时间与时区换算",
+      "version": "1.0.0",
+      "owner_github": "official",
+      "summary": "通过官方 Time MCP Server 查询当前时间、计算相对时间并换算 IANA 时区，适用于跨时区排期。",
+      "industries": [
+        "general",
+        "software"
+      ],
+      "positions": [
+        "executive-secretary",
+        "developer"
+      ],
+      "tags": [
+        "时区",
+        "排期",
+        "MCP"
+      ],
+      "license": "Apache-2.0",
+      "compat": {
+        "desktop_min": "0.1.0",
+        "external_clients": [
+          "claude-code"
+        ]
+      },
+      "permissions": {
+        "process": "客户端在本机启动 uvx 和 Python MCP 服务，通过标准输入输出通信。",
+        "filesystem": "uv 读取、写入本机工具与依赖缓存；时间服务读取系统时间和时区数据。",
+        "network": "uv 首次安装或缺少缓存时，访问已配置的 Python 包索引及其下载地址。时间查询在本机完成。",
+        "credentials": "时间服务无需 API Key。"
+      },
+      "dependencies": {},
+      "entrypoints": {
+        "readme": "readme.md",
+        "mcp": "mcp.json"
+      },
+      "path": "mcps/timezone-clock",
+      "commit_sha": "0ca055b968e0b7e9f45bf5c731e9066378f234dc",
+      "updated_at": "2026-11-24T13:09:17+08:00",
+      "identity_mode": null,
+      "model_tier_binding": null,
+      "has_skill": false,
+      "source": "official",
+      "content_sha256": "45c0e2e383e434ed971b085b99c117fc7513ebc5e36e1990280f0c5b30d26d7c",
       "dependency_lock": []
     },
     {
@@ -251,6 +300,52 @@
       ]
     },
     {
+      "id": "skills/xhs-copywriting-basics",
+      "type": "skill",
+      "market_group": "gear",
+      "name": "小红书笔记起草与核对",
+      "version": "1.0.0",
+      "owner_github": "official",
+      "summary": "根据用户提供的品牌、受众和价格资料撰写图文草稿，并核对价格、活动时间和卖点。",
+      "industries": [
+        "content-media"
+      ],
+      "positions": [
+        "xhs-operator"
+      ],
+      "tags": [
+        "小红书",
+        "文案",
+        "内容核对"
+      ],
+      "license": "Apache-2.0",
+      "compat": {
+        "desktop_min": "0.1.0",
+        "external_clients": [
+          "claude-code"
+        ]
+      },
+      "permissions": {
+        "shell": false,
+        "network": false,
+        "filesystem": "读取用户指定的写作资料，仅在用户要求时保存草稿到指定路径。"
+      },
+      "dependencies": {},
+      "entrypoints": {
+        "readme": "readme.md",
+        "skill": "SKILL.md"
+      },
+      "path": "skills/xhs-copywriting-basics",
+      "commit_sha": "0ca055b968e0b7e9f45bf5c731e9066378f234dc",
+      "updated_at": "2026-11-24T13:09:17+08:00",
+      "identity_mode": null,
+      "model_tier_binding": null,
+      "has_skill": false,
+      "source": "official",
+      "content_sha256": "7541989357498c46af1715ea81ce41d0eef49f916a8fde94ebb5a6e4f960b832",
+      "dependency_lock": []
+    },
+    {
       "id": "tool-adapters/opencode-mcp",
       "type": "tool_adapter",
       "market_group": "gear",
@@ -339,6 +434,20 @@
       }
     },
     {
+      "id": "mcps/timezone-clock",
+      "version": "1.0.0",
+      "path": "mcps/timezone-clock",
+      "commit_sha": "0ca055b968e0b7e9f45bf5c731e9066378f234dc",
+      "content_sha256": "45c0e2e383e434ed971b085b99c117fc7513ebc5e36e1990280f0c5b30d26d7c",
+      "dependency_lock": [],
+      "compat": {
+        "desktop_min": "0.1.0",
+        "external_clients": [
+          "claude-code"
+        ]
+      }
+    },
+    {
       "id": "model-configs/cn-value-plus",
       "version": "1.0.0",
       "path": "model-configs/cn-value-plus",
@@ -408,6 +517,20 @@
       }
     },
     {
+      "id": "skills/xhs-copywriting-basics",
+      "version": "1.0.0",
+      "path": "skills/xhs-copywriting-basics",
+      "commit_sha": "0ca055b968e0b7e9f45bf5c731e9066378f234dc",
+      "content_sha256": "7541989357498c46af1715ea81ce41d0eef49f916a8fde94ebb5a6e4f960b832",
+      "dependency_lock": [],
+      "compat": {
+        "desktop_min": "0.1.0",
+        "external_clients": [
+          "claude-code"
+        ]
+      }
+    },
+    {
       "id": "tool-adapters/opencode-mcp",
       "version": "1.0.0",
       "path": "tool-adapters/opencode-mcp",
@@ -422,7 +545,7 @@
     }
   ],
   "rollbacks": [],
-  "catalog_revision": 2,
-  "head_sha": "63c14ab63d4ab1b9924db8c773e4a004bfd89f42",
-  "generated_at": "2026-11-24T10:09:45+08:00"
+  "catalog_revision": 3,
+  "head_sha": "0ca055b968e0b7e9f45bf5c731e9066378f234dc",
+  "generated_at": "2026-11-24T13:09:17+08:00"
 }

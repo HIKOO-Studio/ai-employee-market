@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "id": "skills/xhs-copywriting-basics",
+  "type": "skill",
+  "market_group": "gear",
+  "name": "小红书笔记起草与核对",
+  "version": "1.0.0",
+  "owner_github": "official",
+  "summary": "根据用户提供的品牌、受众和价格资料撰写图文草稿，并核对价格、活动时间和卖点。",
+  "industries": [
+    "content-media"
+  ],
+  "positions": [
+    "xhs-operator"
+  ],
+  "tags": [
+    "小红书",
+    "文案",
+    "内容核对"
+  ],
+  "license": "Apache-2.0",
+  "compat": {
+    "desktop_min": "0.1.0",
+    "external_clients": [
+      "claude-code"
+    ]
+  },
+  "permissions": {
+    "shell": false,
+    "network": false,
+    "filesystem": "读取用户指定的写作资料，仅在用户要求时保存草稿到指定路径。"
+  },
+  "dependencies": {},
+  "entrypoints": {
+    "readme": "readme.md",
+    "skill": "SKILL.md"
+  }
+}

@@ -79,7 +79,7 @@
       "type": "judge",
       "market_group": "system",
       "name": "官方默认裁判身份",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "owner_github": "official",
       "summary": "桌面端内置裁判身份：按态度、能力、主动性、独立性 4 维与 5 档录用标准生成人类可读评测结论。",
       "industries": [
@@ -100,13 +100,13 @@
         "prompt": "prompt.md"
       },
       "path": "judges/default-judge",
-      "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
-      "updated_at": "2026-11-23T14:01:13+08:00",
+      "commit_sha": "63c14ab63d4ab1b9924db8c773e4a004bfd89f42",
+      "updated_at": "2026-11-24T10:09:45+08:00",
       "identity_mode": null,
       "model_tier_binding": null,
       "has_skill": false,
       "source": "official",
-      "content_sha256": "89600b287f949b30a8fb35f5de9662a4e9495664184f07c3c4bbc242b93ccba7",
+      "content_sha256": "8dd4a12e94db77607a597a707b3b4535a8e3027eba2c92c4ed24424a67cd63bc",
       "dependency_lock": []
     },
     {
@@ -152,7 +152,7 @@
       "type": "scenario",
       "market_group": "scenario",
       "name": "小红书运营：五篇种草笔记与改价应变",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "owner_github": "official",
       "summary": "基于真实产品资料制作五篇小红书种草笔记，中途注入价格变更与配图工具 503 故障，并含视觉旧价海报陷阱，综合考察态度、能力、主动性与独立性。",
       "industries": [
@@ -179,13 +179,13 @@
         "scenario": "scenario.json"
       },
       "path": "scenarios/xhs-operator-five-posts",
-      "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
-      "updated_at": "2026-11-23T14:01:13+08:00",
+      "commit_sha": "63c14ab63d4ab1b9924db8c773e4a004bfd89f42",
+      "updated_at": "2026-11-24T10:09:45+08:00",
       "identity_mode": null,
       "model_tier_binding": null,
       "has_skill": false,
       "source": "official",
-      "content_sha256": "4ec41a4a33acd32eb74297f58b78a9a3c38abb58e7892f80d3746dc740252771",
+      "content_sha256": "db79cb19112b68f34beb3e9d6ab86fed58de5961ae410b80c8dd3bcdcc10f7d3",
       "dependency_lock": []
     },
     {
@@ -328,6 +328,17 @@
       }
     },
     {
+      "id": "judges/default-judge",
+      "version": "1.1.0",
+      "path": "judges/default-judge",
+      "commit_sha": "63c14ab63d4ab1b9924db8c773e4a004bfd89f42",
+      "content_sha256": "8dd4a12e94db77607a597a707b3b4535a8e3027eba2c92c4ed24424a67cd63bc",
+      "dependency_lock": [],
+      "compat": {
+        "desktop_min": "0.1.0"
+      }
+    },
+    {
       "id": "model-configs/cn-value-plus",
       "version": "1.0.0",
       "path": "model-configs/cn-value-plus",
@@ -345,6 +356,23 @@
       "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
       "content_sha256": "4ec41a4a33acd32eb74297f58b78a9a3c38abb58e7892f80d3746dc740252771",
       "dependency_lock": [],
+      "compat": {
+        "desktop_min": "0.1.0"
+      }
+    },
+    {
+      "id": "scenarios/xhs-operator-five-posts",
+      "version": "1.1.0",
+      "path": "scenarios/xhs-operator-five-posts",
+      "commit_sha": "63c14ab63d4ab1b9924db8c773e4a004bfd89f42",
+      "content_sha256": "db79cb19112b68f34beb3e9d6ab86fed58de5961ae410b80c8dd3bcdcc10f7d3",
+      "dependency_lock": [],
+      "core_checks": {
+        "posts-exist": [
+          "identity",
+          "team"
+        ]
+      },
       "compat": {
         "desktop_min": "0.1.0"
       }
@@ -394,7 +422,7 @@
     }
   ],
   "rollbacks": [],
-  "catalog_revision": 1,
-  "head_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
-  "generated_at": "2026-11-23T14:01:13+08:00"
+  "catalog_revision": 2,
+  "head_sha": "63c14ab63d4ab1b9924db8c773e4a004bfd89f42",
+  "generated_at": "2026-11-24T10:09:45+08:00"
 }

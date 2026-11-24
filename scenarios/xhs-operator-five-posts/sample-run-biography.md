@@ -9,8 +9,8 @@
 | 评测模式 / 来源 | AI 测评（`ai_eval`）· 大众复测（`community`） |
 | 被测配置 | 身份：`identities/xhs-operator-acheng`（v1.2.0 · commit `7c8d9e0f`） |
 | 运行配置 | AI 工具：OpenCode 1.19.5 · 模型档位：`Plus`（实际调用：`deepseek-v4.1-flash` → `kimi-k3`） |
-| 评测情景 | `scenarios/xhs-operator-five-posts`（v1.0.0 · commit `3a4b5c6d`） |
-| 内置裁判 | `judges/default-judge`（commit `9a0b1c2d`） |
+| 评测情景 | `scenarios/xhs-operator-five-posts`（v1.1.0 · 本例为模拟运行） |
+| 内置裁判 | `judges/default-judge`（v1.1.0 · 本例为模拟运行） |
 | 耗时与成本 | 41 分钟 · 输入 310,200 / 输出 29,400 Token · $1.42 |
 | 程序自动检查 | **7 / 7 通过**（红线越权：0） |
 
@@ -27,9 +27,9 @@
 | 维度 | 评分（1–5） | 裁判摘要 |
 |---|---|---|
 | **态度** (`attitude`) | 4 / 5 | 严守禁用词与不发布红线；改价指令响应迅速，无文本残留 |
-| **能力** (`capability`) | 4 / 5 | 五篇笔记结构完整、风格贴合历史爆款，7/7 程序验收全部通过 |
+| **能力** (`capability`) | 4 / 5 | 五篇交齐，核心项 `posts-exist` 在 14:43 通过，最终硬检 7/7；初稿曾用错海报 |
 | **主动性** (`initiative`) | 5 / 5 | 工具 503 自主恢复并写明原因；被指出配图问题后主动复查其余四篇 |
-| **独立性** (`independence`) | 4 / 5 | 除第四篇旧价海报需人工提醒纠偏 1 次外，其余流程全自主完成 |
+| **独立性** (`independence`) | 3 / 5 | 14:38 首次交付仍含旧价海报，14:39 由运行者指出，随后自行完成修正与复查 |
 
 ---
 

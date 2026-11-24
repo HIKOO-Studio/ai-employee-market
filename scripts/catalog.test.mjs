@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync, spawnSync } from "node:child_process";
-import { validVersion, compareVersions } from "./catalog.mjs";
+import { validVersion, compareVersions, scenarioCoreChecks } from "./catalog.mjs";
 
 const buildScript = fileURLToPath(
   new URL("./build-manifest.mjs", import.meta.url),
@@ -236,4 +236,46 @@ test("PR and publisher compare against protected history despite competing merge
   write(id + "/readme.md", "still different");
   commit("PR with fabricated history");
   assert.throws(() => build("--base-ref", generated, "--check"), /不可覆盖/);
+});
+
+test("pinned scenario releases derive core checks from their own scenario file", (t) => {
+  const { root, init, pkg, build, read, write, commit } = fixture(t);
+  init();
+  const id = "scenarios/delivery";
+  const file = id + "/scenario.json";
+  const scenario = (checks) => ({ payload: { acceptance: { auto_checks: checks } } });
+  pkg(id, "1.0.0");
+  write(file, scenario([{ id: "deliver" }]));
+  commit("unmarked legacy scenario");
+  build("--git");
+  const oldRelease = read().releases[0];
+  assert.equal(Object.hasOwn(oldRelease, "core_checks"), false);
+  commit("legacy catalog");
+
+  pkg(id, "1.1.0");
+  write(file, scenario([{ id: "deliver", core_for: ["team", "identity"] }, { id: "layout" }]));
+  const source = commit("mark delivery as core");
+  build("--git");
+  const releases = read().releases;
+  assert.deepEqual(releases[0], oldRelease);
+  assert.deepEqual(releases[1].core_checks, {deliver: ["identity", "team"]});
+  assert.equal(releases[1].commit_sha, source);
+  commit("catalog with scoped checks");
+
+  write(file, scenario([{ id: "deliver", core_for: ["identity"] }]));
+  commit("attempt to change published grading");
+  assert.throws(() => build("--git"), /不可覆盖/);
+  const manifest = JSON.parse(fs.readFileSync(path.join(root, id, "manifest.json")));
+  write(id + "/manifest.json", { ...manifest, version: "1.2.0", core_checks: { layout: ["team"] } });
+  commit("attempt to inject generated metadata");
+  assert.throws(() => build("--git"), /core_checks 由题包生成/);
+});
+
+test("a core check has an unambiguous ID and a nonempty set of formal subject types", () => {
+  const parse = auto_checks => scenarioCoreChecks({ payload: { acceptance: { auto_checks } } });
+  for (const core_for of [null, [], "team", ["member"], ["team", "team"]]) {
+    assert.throws(() => parse([{id: "delivery", core_for}]), /core_for/);
+  }
+  assert.throws(() => parse([{id: "x"}, {id: "x", core_for: ["team"]}]), /唯一/);
+  assert.equal(parse([{id: "legacy"}]), undefined);
 });

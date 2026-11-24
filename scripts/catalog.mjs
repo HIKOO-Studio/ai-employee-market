@@ -51,6 +51,30 @@ export const orderId = (a, b) => cmp(a.id, b.id);
 const identity = (row) => row.id + "@" + row.version;
 const contentHash = (filesHash, lock) =>
   sha256(JSON.stringify(["market-package-v1", filesHash, lock]));
+// Only the versioned scenario may set grading policy for a formal subject.
+export function scenarioCoreChecks(scenario) {
+  const checks = scenario?.payload?.acceptance?.auto_checks;
+  if (checks === undefined) return undefined;
+  if (!Array.isArray(checks)) throw Error("auto_checks 必须为数组");
+  const ids = new Set();
+  const core = new Map();
+  for (const check of checks) {
+    if (typeof check?.id !== "string" || !check.id.trim() || check.id !== check.id.trim() || ids.has(check.id)) {
+      throw Error("auto_checks 的 id 必须非空、无首尾空格且唯一");
+    }
+    ids.add(check.id);
+    if (!Object.hasOwn(check, "core_for")) continue;
+    const subjects = check.core_for;
+    if (!Array.isArray(subjects) || !subjects.length ||
+        subjects.some(value => value !== "identity" && value !== "team") ||
+        new Set(subjects).size !== subjects.length) {
+      throw Error(check.id + ".core_for 须为 identity、team 组成的非空、无重复数组");
+    }
+    core.set(check.id, [...subjects].sort());
+  }
+  return core.size ? Object.fromEntries(core) : undefined;
+}
+
 export function packageFilesHash(files) {
   const entries = [...files].sort((a, b) => cmp(a.path, b.path));
   return sha256(
@@ -167,6 +191,7 @@ export function makeCatalog(snapshot, previous) {
       commit_sha: pkg.commit(),
       content_sha256: digest,
       dependency_lock: lock,
+      ...(pkg.coreChecks && { core_checks: pkg.coreChecks }),
       compat: m.compat || {},
     };
     resolved.set(id, row);

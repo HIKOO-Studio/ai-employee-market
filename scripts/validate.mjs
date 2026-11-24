@@ -7,7 +7,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { validVersion } from "./catalog.mjs";
+import { validVersion, scenarioCoreChecks } from "./catalog.mjs";
 
 const opts = parseArgs(process.argv.slice(2));
 const ROOT = path.resolve(opts.root || path.join(path.dirname(fileURLToPath(import.meta.url)), ".."));
@@ -193,8 +193,24 @@ function validateItem(item, taxonomy, allIds, released) {
       if (!taxonomy.positions.has(pos)) fail(`${id}: positions 包含未在 taxonomy.json 登记的值 "${pos}"`);
     }
 
-    if (expected.type === "scenario" && !fs.existsSync(path.join(absDir, "scenario.json"))) {
-      fail(`${id}: scenario 类型必须包含 scenario.json`);
+    if (Object.hasOwn(manifest, "core_checks")) fail(`${id}: core_checks 由题包生成`);
+    if (expected.type === "scenario") {
+      const definitionFiles = walkFiles(absDir);
+      const entry = manifest.entrypoints?.scenario ?? "scenario.json";
+      if (!definitionFiles.includes(path.join(absDir, "scenario.json"))) {
+        fail(`${id}: scenario 类型必须包含普通文件 scenario.json`);
+      }
+      const entryPath = typeof entry === "string" ? path.resolve(absDir, entry) : "";
+      if (!definitionFiles.includes(entryPath)) {
+        fail(`${id}: 情景入口必须是资源包内的普通文件`);
+      } else {
+        const definition = readJson(entryPath, `${id}/${entry}`);
+        try {
+          scenarioCoreChecks(definition);
+        } catch (error) {
+          fail(`${id}/${entry}: ${error.message}`);
+        }
+      }
     }
 
     // 校验 entrypoints 文件存在性

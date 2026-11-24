@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { sha256, packageFilesHash } from "./catalog.mjs";
+import { sha256, packageFilesHash, scenarioCoreChecks } from "./catalog.mjs";
 
 export const categories = [
   "identities",
@@ -133,11 +133,22 @@ export function readSnapshot(root, ref, prior) {
     if (!manifestFile || manifestFile.mode === "120000")
       throw Error(id + " 缺少普通文件 manifest.json");
     const manifest = JSON.parse(manifestFile.bytes);
+    if (Object.hasOwn(manifest, "core_checks"))
+      throw Error(id + " 的 core_checks 由题包生成，不能在资源清单中声明");
+    let coreChecks;
+    if (id.startsWith("scenarios/")) {
+      const entry = manifest.entrypoints?.scenario ?? "scenario.json";
+      const definition = files.find(f => f.path === entry);
+      if (!definition || definition.mode === "120000")
+        throw Error(id + " 缺少普通文件 " + entry);
+      coreChecks = scenarioCoreChecks(JSON.parse(definition.bytes));
+    }
     const filesHash = packageFilesHash(files);
     const prev = legacy.get(id);
     packages.set(id, {
       manifest,
       filesHash,
+      coreChecks,
       hasSkill: files.some((f) => f.path.startsWith("skill/")),
       commit() {
         if (ref)

@@ -1,7 +1,7 @@
 # AI 员工开源市场仓库（`ai-employee-market`）
 
 本仓库托管所有公开开源配置资源，与服务端职责严格分离：
-- **本仓库负责**：配置本体、版本历史、PR 规范与防密钥校验、Owner + Admin 双重审批、自动生成根目录索引 `manifest.json`。
+- **本仓库负责**：配置本体、版本历史、PR 规范与防密钥校验、资源 Owner 确认与管理员审批、自动生成根目录索引 `manifest.json`。
 - **服务端负责**：同步本仓库索引并提供多维筛选、账号体系、级联反查与评测运行数据回显。
 
 ## 目录结构
@@ -28,12 +28,16 @@
 2. 严禁修改根目录 `manifest.json` 和 `owners.json`，严禁包含任何 API Key / Token / 私钥；
 3. 提交 PR 后将自动运行 `pr-validate` 校验：
    - **新增资源**：校验通过 + 平台 Admin 审批合入，合入后你的 GitHub 账号自动登记为唯一 `owner`；
-   - **修改已有资源**：校验通过 + **原创建者（Owner）与平台 Admin 双方共同 Approve** 才可合入；
+   - **修改已有资源**：校验通过后，需要原 Owner 确认和市场管理员审批。官方资源由市场管理员代表 Owner；
 4. 合入 `main` 后，流水线生成版本索引，并按部署配置通知服务端刷新市场。
 
-管理员在仓库变量 `MARKET_ADMINS` 中维护 GitHub 登录名，用逗号分隔。审批名单缺失时检查失败。平台种子配置的 `owner_github: official` 由一名提交人以外的实际管理员批准；其他已有配置需要原 Owner 和一名独立管理员确认，Owner 自己提交即视为本人确认。审批仅对当前 PR 的 HEAD 生效。
+在 PR 打开或从草稿转为可审阅时，GitHub 按 [CODEOWNERS](.github/CODEOWNERS) 邀请审核人。默认名单为 `Xiao-Lu-Liu`、`Nakotango` 和 `nakodew`。市场校验从仓库变量 `MARKET_ADMINS` 读取有审批权的账号；调整团队成员时请同步更新这两处。
 
-内容投稿和仓库规则维护分开提 PR。默认分支上的工作流用基线校验器读取候选合并的文件数据，只向该 PR 的精确提交写入 `market/pr-validate` 状态。审批事件会重新计算该状态，也可在 PR 评论 `/market-recheck` 请求重查。管理员可将 `market/pr-validate` 设为合并必需状态并要求分支保持最新。若私有仓库套餐无法强制该规则，由受信维护者核对该提交的绿色状态和实际审批后合并。
+**管理员确认自己的资源 PR。** 当全部改动都在资源包目录内，管理员作者可以进入 **Files changed → Review changes**，在审阅正文中单独填写 `/market-approve`，选择 **Comment → Submit review**。也可以运行 `gh pr review <PR号> --comment --body /market-approve`。市场校验按 GitHub 记录的审阅账号和提交号确认这次决定。后续推送新提交需要重新确认。正式审阅中的 `/market-revoke` 可撤回当前确认。
+
+如果修改他人名下的已有资源，仍需原 Owner 对同一提交点 **Approve**。Owner 自己提交时已表明同意，其中管理员 Owner 可再用上述指令明确确认发布。涉及 `.github/`、工作流、审批脚本、根目录文件等共享内容的 PR，仍须另一位市场管理员在当前提交上点 **Approve**。
+
+内容投稿和仓库规则维护分开提 PR。默认分支上的工作流用基线校验器读取候选合并的文件数据，只向该 PR 的精确提交写入 `market/pr-validate` 状态。审批事件会重新计算该状态，也可在 PR 的 Conversation 评论 `/market-recheck` 请求重查。`main` 的分支保护要求分支保持最新并通过 `market/pr-validate`，该要求也适用于管理员。
 
 ## 资源版本和依赖
 

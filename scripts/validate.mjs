@@ -158,6 +158,63 @@ function discoverItems() {
   return items;
 }
 
+function validateSkillStandard(id, absDir) {
+  const skillPath = path.join(absDir, "SKILL.md");
+  if (!fs.existsSync(skillPath) || !fs.lstatSync(skillPath).isFile()) {
+    fail(`${id}: skill 类型必须遵守 Agent Skills 行业规范，在目录根部提供普通文件 SKILL.md`);
+    return;
+  }
+  const raw = fs.readFileSync(skillPath, "utf8");
+  const fmMatch = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/.exec(raw);
+  if (!fmMatch) {
+    fail(`${id}/SKILL.md: 缺少标准 YAML Frontmatter（需以 --- 包裹并包含 name、description）`);
+    return;
+  }
+  const [, frontmatter, body] = fmMatch;
+  const hasName = /^\s*name\s*:\s*\S+/m.test(frontmatter);
+  const hasDesc = /^\s*description\s*:\s*\S+/m.test(frontmatter);
+  if (!hasName) fail(`${id}/SKILL.md: YAML Frontmatter 缺少必填字段 name`);
+  if (!hasDesc) fail(`${id}/SKILL.md: YAML Frontmatter 缺少必填字段 description`);
+  if (!body.trim()) fail(`${id}/SKILL.md: Frontmatter 之后缺少 Skill 指令正文`);
+}
+
+function validateMcpStandard(id, absDir) {
+  const mcpPath = path.join(absDir, "mcp.json");
+  if (!fs.existsSync(mcpPath) || !fs.lstatSync(mcpPath).isFile()) {
+    fail(`${id}: mcp 类型必须遵守标准声明规范，在目录根部提供普通文件 mcp.json`);
+    return;
+  }
+  const cfg = readJson(mcpPath, `${id}/mcp.json`);
+  if (!cfg) return;
+  if (!cfg.mcpServers || typeof cfg.mcpServers !== "object" || Array.isArray(cfg.mcpServers)) {
+    fail(`${id}/mcp.json: 必须包含标准 mcpServers 对象`);
+    return;
+  }
+  const entries = Object.entries(cfg.mcpServers);
+  if (entries.length === 0) {
+    fail(`${id}/mcp.json: mcpServers 至少需要声明 1 个服务`);
+    return;
+  }
+  for (const [serverName, def] of entries) {
+    if (!def || typeof def !== "object" || Array.isArray(def)) {
+      fail(`${id}/mcp.json: mcpServers.${serverName} 必须为对象`);
+      continue;
+    }
+    const hasCommand = typeof def.command === "string" && def.command.trim().length > 0;
+    const hasUrl = typeof def.url === "string" && /^https?:\/\//i.test(def.url.trim());
+    if (!hasCommand && !hasUrl) {
+      fail(`${id}/mcp.json: mcpServers.${serverName} 必须声明 command（stdio）或合法的 http(s) url（远程）`);
+    }
+    if (def.args !== undefined) {
+      if (!Array.isArray(def.args) || def.args.some((a) => typeof a !== "string")) {
+        fail(`${id}/mcp.json: mcpServers.${serverName}.args 必须为字符串数组`);
+      } else if (def.args.some((a) => /@latest(?=$|[/?#])/i.test(a))) {
+        fail(`${id}/mcp.json: mcpServers.${serverName}.args 禁止使用 @latest，请锁定精确版本号以保证评测可复现`);
+      }
+    }
+  }
+}
+
 function validateItem(item, taxonomy, allIds, released) {
   const { id, slug, absDir, expected } = item;
   if (!SLUG_RE.test(slug)) {
@@ -211,6 +268,14 @@ function validateItem(item, taxonomy, allIds, released) {
           fail(`${id}/${entry}: ${error.message}`);
         }
       }
+    }
+
+    if (expected.type === "skill") {
+      validateSkillStandard(id, absDir);
+    }
+
+    if (expected.type === "mcp") {
+      validateMcpStandard(id, absDir);
     }
 
     // 校验 entrypoints 文件存在性

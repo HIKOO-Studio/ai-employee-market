@@ -149,7 +149,7 @@ export function readSnapshot(root, ref, prior) {
       manifest,
       filesHash,
       coreChecks,
-      hasSkill: files.some((f) => f.path.startsWith("skill/")),
+      hasSkill: files.some((f) => f.path === "SKILL.md" || f.path.startsWith("skill/")),
       commit() {
         if (ref)
           return git(root, ["log", "-1", "--format=%H", ref, "--", id]).trim();

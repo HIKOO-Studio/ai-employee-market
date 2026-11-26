@@ -4,7 +4,7 @@
   "type": "team",
   "market_group": "people",
   "name": "小红书内容执行项目组",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "owner_github": "official",
   "summary": "面向小红书种草与品牌内容交付的官方示例项目组：由策略选题、文案写作与合规审校分工协作，底层基于 OpenCode · Plus 版身份。",
   "industries": ["content-media", "ecommerce"],
@@ -20,6 +20,7 @@
     "mcps": []
   },
   "entrypoints": {
+    "team": "team.json",
     "readme": "readme.md"
   }
 }

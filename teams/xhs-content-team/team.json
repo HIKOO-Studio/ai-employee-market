@@ -1,0 +1,23 @@
+{
+  "leaderId": "strategy",
+  "members": [
+    {
+      "id": "strategy",
+      "name": "内容策划",
+      "role": "制定选题与排期，协调交付",
+      "identity": "identities/opencode-plus-base"
+    },
+    {
+      "id": "copywriter",
+      "name": "笔记主笔",
+      "role": "根据选题和材料撰写文案",
+      "identity": "identities/opencode-plus-base"
+    },
+    {
+      "id": "reviewer",
+      "name": "质量审校",
+      "role": "核对事实、品牌规范与交付要求",
+      "identity": "identities/opencode-plus-base"
+    }
+  ]
+}

@@ -66,9 +66,9 @@ export function scenarioCoreChecks(scenario) {
     if (!Object.hasOwn(check, "core_for")) continue;
     const subjects = check.core_for;
     if (!Array.isArray(subjects) || !subjects.length ||
-        subjects.some(value => value !== "identity" && value !== "team") ||
+        subjects.some(value => value !== "identity" && value !== "team" && value !== "secretary") ||
         new Set(subjects).size !== subjects.length) {
-      throw Error(check.id + ".core_for 须为 identity、team 组成的非空、无重复数组");
+      throw Error(check.id + ".core_for 须为 identity、secretary、team 组成的非空、无重复数组");
     }
     core.set(check.id, [...subjects].sort());
   }

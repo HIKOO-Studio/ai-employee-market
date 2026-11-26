@@ -399,7 +399,7 @@
       "type": "team",
       "market_group": "people",
       "name": "小红书内容执行项目组",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "owner_github": "official",
       "summary": "面向小红书种草与品牌内容交付的官方示例项目组：由策略选题、文案写作与合规审校分工协作，底层基于 OpenCode · Plus 版身份。",
       "industries": [
@@ -427,16 +427,17 @@
         "mcps": []
       },
       "entrypoints": {
+        "team": "team.json",
         "readme": "readme.md"
       },
       "path": "teams/xhs-content-team",
-      "commit_sha": "a9edfe2780cea44e1137db972bceebf9a9d84007",
-      "updated_at": "2026-11-24T09:09:42+08:00",
+      "commit_sha": "e52d7122b35412dd5125e7f7628c935fed40613e",
+      "updated_at": "2026-11-26T10:59:49+08:00",
       "identity_mode": null,
       "model_tier_binding": null,
       "has_skill": false,
       "source": "official",
-      "content_sha256": "ae7e6104424cf040e2f0783800f19b4fb38350905f64ff527d414c78fc0ac0f8",
+      "content_sha256": "334122e9dee9f41d8ccea0d50edfe5e078bfe9d6b8e10e5280785a7b1274edb0",
       "dependency_lock": [
         {
           "id": "identities/opencode-plus-base",
@@ -768,6 +769,36 @@
       }
     },
     {
+      "id": "teams/xhs-content-team",
+      "version": "1.1.0",
+      "path": "teams/xhs-content-team",
+      "commit_sha": "e52d7122b35412dd5125e7f7628c935fed40613e",
+      "content_sha256": "334122e9dee9f41d8ccea0d50edfe5e078bfe9d6b8e10e5280785a7b1274edb0",
+      "dependency_lock": [
+        {
+          "id": "identities/opencode-plus-base",
+          "version": "1.1.1",
+          "commit_sha": "53571b0070f78e692a318ec6b7bc9d750fa75d85",
+          "content_sha256": "49880a4701e166dd4f25ad75614ce7133a2788e8f8b6bfab2e19c3c31de1ac10"
+        },
+        {
+          "id": "model-configs/cn-value-plus",
+          "version": "1.0.1",
+          "commit_sha": "ea7d64ac543bef5362152c06a9cfee17534310d3",
+          "content_sha256": "20c10f11f279d610df978ec2087f7266a0b434f2c02731625fc30d1517bafbf8"
+        },
+        {
+          "id": "tool-adapters/opencode-mcp",
+          "version": "1.0.0",
+          "commit_sha": "e956e48962e1685cbcfb1fc694665b31d4bce0e0",
+          "content_sha256": "a1bfee4c1c49375916485770e557d37da1966aa7bbc67d247ec8ad3051d45fbf"
+        }
+      ],
+      "compat": {
+        "desktop_min": "0.1.0"
+      }
+    },
+    {
       "id": "tool-adapters/opencode-mcp",
       "version": "1.0.0",
       "path": "tool-adapters/opencode-mcp",
@@ -782,7 +813,7 @@
     }
   ],
   "rollbacks": [],
-  "catalog_revision": 5,
-  "head_sha": "ed2f2a2dd697057d0efa6f516c0ca6f3d162b2b8",
-  "generated_at": "2026-11-24T15:14:51+08:00"
+  "catalog_revision": 6,
+  "head_sha": "e52d7122b35412dd5125e7f7628c935fed40613e",
+  "generated_at": "2026-11-26T10:59:49+08:00"
 }

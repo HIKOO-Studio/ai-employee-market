@@ -56,6 +56,7 @@ jobs:
       pull-requests: read
     outputs:
       approvers: ${{ steps.reviews.outputs.approvers }}
+      self_approved: ${{ steps.reviews.outputs.self_approved }}
       reviews_read: ${{ steps.reviews.outputs.read }}
     steps:
       - name: Check out trusted rules from the base commit
@@ -88,22 +89,25 @@ jobs:
         env:
           NUMBER: ${{ needs.prepare.outputs.number }}
           HEAD_SHA: ${{ needs.prepare.outputs.head }}
+          AUTHOR: ${{ needs.prepare.outputs.author }}
         with:
           script: |
-            const {currentApprovers} = await import(process.env.GITHUB_WORKSPACE + '/rules/scripts/reviews.mjs');
-            const reviews = await github.paginate(github.rest.pulls.listReviews,{...context.repo,pull_number:Number(process.env.NUMBER),per_page:100});
-            core.setOutput('approvers',currentApprovers(reviews, process.env.HEAD_SHA).join(','));
+            const {readReviewDecisions} = await import(process.env.GITHUB_WORKSPACE + '/rules/scripts/reviews.mjs');
+            const review = await readReviewDecisions(github, context.repo, Number(process.env.NUMBER), process.env.HEAD_SHA, process.env.AUTHOR);
+            core.setOutput('approvers', review.approvers);
+            core.setOutput('self_approved', String(review.selfApproved));
             core.setOutput('read','yes');
       - name: Validate using only base-branch code
         env:
           BASE: ${{ needs.prepare.outputs.base }}
           AUTHOR: ${{ needs.prepare.outputs.author }}
           APPROVERS: ${{ steps.reviews.outputs.approvers }}
+          SELF_APPROVED: ${{ steps.reviews.outputs.self_approved }}
           MARKET_ADMINS: ${{ vars.MARKET_ADMINS }}
           MARKET_REPO: ${{ github.repository }}
         run: |
           node rules/scripts/validate.mjs --root candidate --owners-file rules/owners.json \
-            --pr-files "$RUNNER_TEMP/market-changed" --pr-author "$AUTHOR" --approvers "$APPROVERS" --admins "$MARKET_ADMINS"
+            --pr-files "$RUNNER_TEMP/market-changed" --pr-author "$AUTHOR" --approvers "$APPROVERS" --admins "$MARKET_ADMINS" --self-approved "$SELF_APPROVED"
           node rules/scripts/build-manifest.mjs --repo candidate --check --base-ref "$BASE"
 
   report:
@@ -127,6 +131,7 @@ jobs:
           BASE: ${{ needs.prepare.outputs.base }}
           CHECK_RESULT: ${{ needs.validate.result }}
           APPROVERS: ${{ needs.validate.outputs.approvers }}
+          SELF_APPROVED: ${{ needs.validate.outputs.self_approved }}
           REVIEWS_READ: ${{ needs.validate.outputs.reviews_read }}
         with:
           script: |
@@ -135,11 +140,11 @@ jobs:
             const {data:pr}=await github.rest.pulls.get({owner,repo,pull_number:number});
             if(pr.state !== 'open' || pr.head.sha !== process.env.HEAD_SHA || pr.base.sha !== process.env.BASE) return;
             if (process.env.REVIEWS_READ === 'yes') {
-              const {currentApprovers} = await import(process.env.GITHUB_WORKSPACE + '/rules/scripts/reviews.mjs');
-              const reviews = await github.paginate(github.rest.pulls.listReviews,{owner,repo,pull_number:number,per_page:100});
-              if (currentApprovers(reviews,pr.head.sha).join(',') !== process.env.APPROVERS) return;
+              const {readReviewDecisions} = await import(process.env.GITHUB_WORKSPACE + '/rules/scripts/reviews.mjs');
+              const review = await readReviewDecisions(github, context.repo, number, pr.head.sha, pr.user.login);
+              if (review.approvers !== process.env.APPROVERS || String(review.selfApproved) !== process.env.SELF_APPROVED) return;
             }
-            const state=process.env.CHECK_RESULT === 'success' ? 'success' : 'failure';
+            const state = process.env.REVIEWS_READ === 'yes' && process.env.CHECK_RESULT === 'success' ? 'success' : 'failure';
             await github.rest.repos.createCommitStatus({owner,repo,sha:pr.head.sha,context:'market/pr-validate',state,
               target_url:process.env.GITHUB_SERVER_URL+'/'+owner+'/'+repo+'/actions/runs/'+context.runId,
               description:state==='success' ? 'Market package and reviews verified' : 'Market package or current approvals failed'});

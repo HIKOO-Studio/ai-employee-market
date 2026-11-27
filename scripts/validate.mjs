@@ -112,7 +112,7 @@ function walkFiles(dir) {
 }
 
 function parseArgs(argv) {
-  const opts = { all: false, prFiles: null, prAuthor: "", approvers: [], admins: [] };
+  const opts = { all: false, prFiles: null, prAuthor: "", approvers: [], admins: [], selfApproved: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--all") opts.all = true;
@@ -120,6 +120,7 @@ function parseArgs(argv) {
     else if (a === "--owners-file") opts.ownersFile = argv[++i];
     else if (a === "--pr-files") opts.prFiles = argv[++i];
     else if (a === "--pr-author") opts.prAuthor = (argv[++i] || "").trim().toLowerCase();
+    else if (a === "--self-approved") opts.selfApproved = argv[++i] === "true";
     else if (a === "--approvers") opts.approvers = (argv[++i] || "").split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
     else if (a === "--admins") opts.admins = (argv[++i] || "").split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
   }
@@ -286,7 +287,17 @@ function checkPrGovernance(opts, items) {
   const adminSet = new Set(opts.admins);
   const approverSet = new Set(opts.approvers);
   const reviewAdmins = [...approverSet].filter(a => a !== opts.prAuthor && adminSet.has(a));
-  if (!reviewAdmins.length) fail("需平台管理员审阅并批准当前 PR 提交");
+  const resourceOnly = changed.length > 0 && changed.every(file => {
+    const [category, slug, ...files] = file.split("/");
+    return Object.hasOwn(CATEGORY_MAP, category) && Boolean(slug) && SLUG_RE.test(slug) && files.length > 0;
+  });
+  const adminSelfApproved = resourceOnly && adminSet.has(opts.prAuthor) && opts.selfApproved;
+  const adminApproved = adminSelfApproved || reviewAdmins.length > 0;
+  if (!adminApproved) {
+    fail(resourceOnly
+      ? "需平台管理员批准当前提交，管理员作者也可在审阅中提交 /market-approve"
+      : "仓库共享文件或规则变更需另一位平台管理员批准当前提交");
+  }
 
   const touchedItemIds = new Set();
   for (const f of changed) {
@@ -300,13 +311,12 @@ function checkPrGovernance(opts, items) {
     const existingOwner = (owners[itemId] || "").toLowerCase();
     const item = items.get(itemId);
     if (existingOwner) {
-      // 修改或删除已有资源：必须 Owner（作者本人提交或已 Approve）+ Admin 双审
       const platformOwned = existingOwner === "official";
-      const ownerApproved = platformOwned ? reviewAdmins.length > 0 : opts.prAuthor === existingOwner || approverSet.has(existingOwner);
+      const ownerApproved = platformOwned ? adminApproved : opts.prAuthor === existingOwner || approverSet.has(existingOwner);
       if (!ownerApproved) {
         fail(`${itemId}: 修改已有资源必须获得原创建者 @${existingOwner} 的 Approve`);
       }
-      if (!reviewAdmins.some(a => a !== existingOwner)) {
+      if (!adminSelfApproved && !reviewAdmins.some(a => a !== existingOwner)) {
         fail(`${itemId}: 修改已有资源必须获得平台 Admin 的 Approve（Owner + Admin 双审）`);
       }
       if (item?.manifest && item.manifest.owner_github.toLowerCase() !== existingOwner && !adminSet.has(opts.prAuthor)) {

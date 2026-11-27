@@ -8,7 +8,7 @@ import { spawnSync } from "node:child_process";
 import { currentApprovers } from "./reviews.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-function run(t, {files, author="submitter", admins="admin", approvers="", owner="official", custom}) {
+function run(t, {files, author="submitter", admins="admin", approvers="", selfApproved=false, owner="official", custom}) {
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),"market-governance-"));
   t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
   const resource="skills/example";
@@ -23,14 +23,35 @@ function run(t, {files, author="submitter", admins="admin", approvers="", owner=
   custom?.(pkg);
   const res=spawnSync(process.execPath,[path.join(root,"scripts/validate.mjs"),"--root",candidate,
     "--owners-file",path.join(dir,"owners.json"),"--pr-files",path.join(dir,"changed"),
-    "--pr-author",author,"--admins",admins,"--approvers",approvers],{encoding:"utf8"});
+    "--pr-author",author,"--admins",admins,"--approvers",approvers,"--self-approved",String(selfApproved)],{encoding:"utf8"});
   return {ok:res.status===0,output:res.stdout+res.stderr};
 }
-test("market approvals fail closed; official seeds use an independent actual administrator review",t=>{
+test("an official package requires an explicit administrator decision",t=>{
   assert.equal(run(t,{admins:"",approvers:"admin"}).ok,false);
   assert.equal(run(t,{author:"admin",approvers:"admin"}).ok,false);
   assert.equal(run(t,{author:"submitter",approvers:"admin"}).ok,true);
   assert.equal(run(t,{author:"admin",admins:"admin,reviewer",approvers:"reviewer"}).ok,true);
+});
+test("administrator authors can confirm a package PR while other owners retain their approval", t => {
+  const admins = "Nakotango,Xiao-Lu-Liu,nakodew";
+  for (const author of admins.split(",")) {
+    assert.equal(run(t, {author, admins, selfApproved: true}).ok, true);
+  }
+  const self = {author: "admin", selfApproved: true};
+  assert.equal(run(t, {...self, owner: "admin"}).ok, true);
+  assert.equal(run(t, {...self, owner: "artist"}).ok, false);
+  assert.equal(run(t, {...self, owner: "artist", approvers: "artist"}).ok, true);
+  assert.equal(run(t, {author: "artist", owner: "artist", selfApproved: true}).ok, false);
+  assert.equal(run(t, {...self, custom: pkg => fs.unlinkSync(path.join(pkg, "readme.md"))}).ok, false);
+});
+test("self-confirmation cannot approve repository rules, shared files, or a mixed change", t => {
+  const self = {author: "admin", admins: "admin,other", selfApproved: true};
+  for (const file of [".github/workflows/pr-validate.yml", ".github/CODEOWNERS", "scripts/validate.mjs", "taxonomy.json", "rollbacks.json", "README.md"]) {
+    assert.equal(run(t, {...self, files: [file]}).ok, false, file);
+  }
+  assert.equal(run(t, {...self, files: ["skills/example/readme.md", "README.md"]}).ok, false);
+  assert.equal(run(t, {...self, files: []}).ok, false);
+  assert.equal(run(t, {...self, files: [".github/CODEOWNERS"], approvers: "other"}).ok, true);
 });
 test("ordinary owners and administrators are independently confirmed",t=>{
   assert.equal(run(t,{owner:"artist",approvers:"admin"}).ok,false);

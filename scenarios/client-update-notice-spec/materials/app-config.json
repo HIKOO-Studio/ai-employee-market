@@ -1,0 +1,6 @@
+{
+  "app_name": "SP Desktop",
+  "version": "0.2.0-beta.3",
+  "channel": "beta",
+  "existing_toolbar_buttons": ["登录", "设置", "检查版本"]
+}

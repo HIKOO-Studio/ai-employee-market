@@ -1,0 +1,19 @@
+:root {
+  --paper-bg: #f8f5ee;
+  --paper-raised: #fffdf8;
+  --ink-primary: #231f1a;
+  --ink-muted: #6c6358;
+  --line: #e4dccf;
+  --line-gold: #c9a96e;
+  --shadow-soft: 0 8px 24px rgba(35, 31, 26, 0.12);
+  --bookmark-rail-width: 56px;
+}
+
+.workspace {
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr;
+  min-height: 100vh;
+  background: var(--paper-bg);
+  color: var(--ink-primary);
+}

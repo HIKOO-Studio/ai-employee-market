@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "id": "scenarios/client-update-notice-spec",
+  "type": "scenario",
+  "market_group": "scenario",
+  "name": "开发工程师：带坑方案下的客户端更新提醒实现",
+  "version": "1.0.0",
+  "owner_github": "official",
+  "summary": "在包含过时假设的历史提案、正式 UI 设计规范与服务端真实契约的项目中，实现客户端启动更新提醒并交付可执行测试，综合考察反盲从纠偏、规范遵从、状态机边界与零越界协作。",
+  "industries": ["software"],
+  "positions": ["developer"],
+  "tags": ["客户端研发", "前端状态机", "设计规范", "需求纠偏", "边界完整性"],
+  "license": "Apache-2.0",
+  "compat": {
+    "desktop_min": "0.1.0"
+  },
+  "dependencies": {},
+  "entrypoints": {
+    "readme": "readme.md",
+    "scenario": "scenario.json"
+  }
+}
